@@ -83,6 +83,35 @@ export type Notebook = {
   updated_at: string;
 };
 
+export type Loan = {
+  id: string;
+  agency_id: string;
+  notebook_id: string;
+  validator_id: string;
+  type_loan: "quinzaine" | "mensuel" | "trimestriel";
+  amount_loaned: string;
+  file_fees: string;
+  agency_gain: string;
+  status: "pending" | "approved" | "active" | "gains_remaining" | "closed" | "rejected";
+  loan_date: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Collection = {
+  id: string;
+  agency_id: string;
+  notebook_id: string;
+  user_id: string;
+  box_number: number;
+  agency_box: boolean;
+  repayment_made: boolean;
+  amount: string;
+  synced: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Configuration = {
   id: string;
   microfinance_id: string;

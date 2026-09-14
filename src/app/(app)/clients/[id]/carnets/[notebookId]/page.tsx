@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/lib/auth";
 import { apiFetch, ApiError } from "@/lib/api";
 import { hasPermission } from "@/lib/permissions";
+import { buttonVariants } from "@/components/ui/button";
 import type { ApiEnvelope, Notebook } from "@/lib/types";
 import { NOTEBOOK_STATUS_LABELS } from "../schema";
 import { NotebookStatusForm } from "../notebook-status-form";
@@ -43,6 +45,21 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
           Vous n&apos;avez pas la permission de modifier le statut de ce carnet.
         </p>
       )}
+
+      <div className="flex gap-2">
+        <Link
+          href={`/clients/${id}/carnets/${notebook.id}/cotisations`}
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+        >
+          Voir les cotisations
+        </Link>
+        <Link
+          href={`/clients/${id}/carnets/${notebook.id}/prets`}
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+        >
+          Voir les prêts
+        </Link>
+      </div>
     </div>
   );
 }
