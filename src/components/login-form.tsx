@@ -5,13 +5,17 @@ import { Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { loginAction, type LoginState } from "./actions";
+import type { LoginState } from "@/lib/auth-actions";
 
-export function LoginForm() {
-  const [state, action, pending] = useActionState<LoginState, FormData>(loginAction, null);
+type LoginFormProps = {
+  action: (state: LoginState, formData: FormData) => Promise<LoginState>;
+};
+
+export function LoginForm({ action }: LoginFormProps) {
+  const [state, formAction, pending] = useActionState<LoginState, FormData>(action, null);
 
   return (
-    <form action={action} className="space-y-4">
+    <form action={formAction} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="phone">Téléphone</Label>
         <Input

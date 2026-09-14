@@ -34,7 +34,87 @@ export type Agency = {
   address: string;
   phone: string;
   is_headquarters: boolean;
+  currency?: Currency;
   microfinance?: Microfinance;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Currency = {
+  id: string;
+  code: string;
+  name: string;
+};
+
+export type Prospect = {
+  id: string;
+  agency_id: string;
+  agent_id: string | null;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  address: string;
+  id_piece: string;
+  contribution_amount: string;
+  status: "pending" | "approved" | "rejected" | "converted";
+};
+
+export type Client = {
+  id: string;
+  agency_id: string;
+  prospect_id: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  address: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Notebook = {
+  id: string;
+  agency_id: string;
+  client_id: string;
+  notebook_number: string;
+  year: number;
+  contribution_amount: string;
+  status: "active" | "completed" | "cancelled" | "closed";
+  created_at: string;
+  updated_at: string;
+};
+
+export type Configuration = {
+  id: string;
+  microfinance_id: string;
+  key: string;
+  value: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Licence = {
+  id: string;
+  microfinance_id: string;
+  licence_key: string;
+  start_date: string;
+  end_date: string;
+  status: "active" | "expired" | "revoked";
+  created_at: string;
+  updated_at: string;
+};
+
+export type ManagedUser = {
+  id: string;
+  agency_id: string | null;
+  role_id: string | null;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  email: string;
+  is_active: boolean;
+  is_agent: boolean;
+  agency?: Agency | null;
+  role?: Role | null;
   created_at: string;
   updated_at: string;
 };

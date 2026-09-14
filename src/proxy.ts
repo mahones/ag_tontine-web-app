@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const SESSION_COOKIE = "tontine_session";
-const PUBLIC_PATHS = ["/login"];
+/** "/" is the general login (all roles but Développeur); "/mode-developer" is the developer login. */
+const PUBLIC_PATHS = ["/", "/mode-developer"];
 
 /**
  * Optimistic auth check only (reads the session cookie, does not call the API).
@@ -16,13 +17,13 @@ export function proxy(request: NextRequest) {
   const isPublicPath = PUBLIC_PATHS.includes(pathname);
 
   if (!hasSession && !isPublicPath) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   if (hasSession && isPublicPath) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return NextResponse.next();

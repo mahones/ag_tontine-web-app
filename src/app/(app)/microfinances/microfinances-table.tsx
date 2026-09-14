@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { PencilIcon, SearchIcon } from "lucide-react";
+import { BuildingIcon, PencilIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -78,6 +78,13 @@ export function MicrofinancesTable({ microfinances }: { microfinances: Microfina
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1.5">
+                      <Link
+                        href={`/microfinances/${microfinance.id}/agences`}
+                        className={buttonVariants({ variant: "outline", size: "icon-sm" })}
+                      >
+                        <BuildingIcon />
+                        <span className="sr-only">Voir les agences de {microfinance.name}</span>
+                      </Link>
                       <Link
                         href={`/microfinances/${microfinance.id}`}
                         className={buttonVariants({ variant: "outline", size: "icon-sm" })}

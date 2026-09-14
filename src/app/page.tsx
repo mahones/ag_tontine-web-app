@@ -1,11 +1,17 @@
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { LoginForm } from "./login-form";
+import { LoginForm } from "@/components/login-form";
+import { generalLoginAction } from "@/lib/auth-actions";
 
 export const metadata = {
   title: "Connexion — Tontine",
 };
 
-export default function LoginPage() {
+export default async function HomePage() {
+  const user = await getCurrentUser();
+  if (user) redirect("/dashboard");
+
   return (
     <div className="flex min-h-svh flex-1 items-center justify-center bg-muted/30 p-4">
       <Card className="w-full max-w-sm">
@@ -16,7 +22,7 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <LoginForm />
+          <LoginForm action={generalLoginAction} />
         </CardContent>
       </Card>
     </div>
