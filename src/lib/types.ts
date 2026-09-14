@@ -106,6 +106,7 @@ export type Withdrawal = {
   amount: string;
   agency_gain: string | null;
   withdrawal_mode: string;
+  validator?: ManagedUser;
   created_at: string;
   updated_at: string;
 };
@@ -128,6 +129,7 @@ export type Collection = {
   repayment_made: boolean;
   amount: string;
   synced: boolean;
+  user?: ManagedUser;
   created_at: string;
   updated_at: string;
 };

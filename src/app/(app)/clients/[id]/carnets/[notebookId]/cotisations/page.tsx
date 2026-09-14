@@ -64,13 +64,14 @@ export default async function CollectionsPage(
                 <TableHead>Date</TableHead>
                 <TableHead>Case n°</TableHead>
                 <TableHead>Montant</TableHead>
+                <TableHead>Enregistrée par</TableHead>
                 <TableHead>Effets</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {collections.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                     Aucune cotisation enregistrée pour ce carnet.
                   </TableCell>
                 </TableRow>
@@ -82,6 +83,9 @@ export default async function CollectionsPage(
                     </TableCell>
                     <TableCell>{collection.box_number}</TableCell>
                     <TableCell>{collection.amount}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {collection.user ? `${collection.user.first_name} ${collection.user.last_name}` : "—"}
+                    </TableCell>
                     <TableCell className="space-x-1">
                       {collection.agency_box && <Badge variant="secondary">Case agence</Badge>}
                       {collection.repayment_made && <Badge variant="secondary">Affectée au remboursement</Badge>}

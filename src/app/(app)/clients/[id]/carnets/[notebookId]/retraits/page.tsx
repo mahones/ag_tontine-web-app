@@ -94,12 +94,13 @@ export default async function WithdrawalsPage(props: PageProps<"/clients/[id]/ca
                 <TableHead>Montant</TableHead>
                 <TableHead>Gain agence</TableHead>
                 <TableHead>Mode</TableHead>
+                <TableHead>Validé par</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {withdrawals.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                     Aucun retrait pour ce carnet.
                   </TableCell>
                 </TableRow>
@@ -114,6 +115,11 @@ export default async function WithdrawalsPage(props: PageProps<"/clients/[id]/ca
                     <TableCell>
                       {WITHDRAWAL_MODE_LABELS[withdrawal.withdrawal_mode as keyof typeof WITHDRAWAL_MODE_LABELS] ??
                         withdrawal.withdrawal_mode}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {withdrawal.validator
+                        ? `${withdrawal.validator.first_name} ${withdrawal.validator.last_name}`
+                        : "—"}
                     </TableCell>
                   </TableRow>
                 ))
