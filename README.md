@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tontine — Frontend
 
-## Getting Started
+Console d'administration Next.js pour l'API [ag_tontine](../ag_tontine). Il n'y a pas de page
+d'inscription : seul un compte **Développeur** (créé côté backend) peut se connecter, créer les
+microfinances et leurs comptes propriétaires, qui créent ensuite le personnel de leur microfinance.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router, React 19, Turbopack)
+- shadcn/ui (style `base-nova`, basé sur [Base UI](https://base-ui.com), pas Radix)
+- Tailwind CSS v4
+- react-hook-form + zod pour les formulaires
+- Authentification par jeton Sanctum (bearer), jamais exposé au navigateur : toutes les requêtes
+  vers l'API passent par le serveur Next.js (pattern *backend for frontend*), le jeton est stocké
+  dans un cookie `httpOnly`.
+
+## Démarrer
 
 ```bash
+npm install
+cp .env.example .env.local   # ajuster API_BASE_URL si l'API ne tourne pas sur localhost:8000
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L'API `ag_tontine` doit tourner en parallèle (`php artisan serve` depuis `../ag_tontine`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/lib/session.ts` — cookie httpOnly (`tontine_session`) contenant le jeton Sanctum et l'utilisateur.
+- `src/lib/api.ts` — client `fetch` serveur uniquement (`apiFetch`), attache le jeton, lève `ApiError`.
+- `src/lib/auth.ts` — Data Access Layer : `requireUser()`, `requireDeveloper()`.
+- `src/proxy.ts` — anciennement `middleware.ts` (renommé en Next.js 16) : redirection optimiste
+  vers `/login` basée sur la présence du cookie de session.
+- `src/app/login/` — page de connexion + Server Action (`loginAction`, `logoutAction`).
+- `src/app/(app)/` — zone authentifiée (sidebar + en-tête), navigation filtrée par rôle
+  (`src/lib/nav.ts`).
+- `src/app/(app)/microfinances/` — module CRUD complet (réservé au rôle Développeur, niveau 0) :
+  à dupliquer pour les futurs modules (agences, utilisateurs, clients, carnets, prêts, etc.).
 
-## Learn More
+## Prochaines étapes
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Le rôle Développeur crée une microfinance puis, séparément côté API (`/agencies`, `/users`), une
+agence siège et son compte propriétaire (rôle *Super Admin*). Les modules Agences et Utilisateurs
+suivent le même patron que `microfinances/` (schema zod, `actions.ts`, formulaire, page liste,
+page création, page édition) et restent à construire, de même que les espaces Propriétaire et
+Agence.
