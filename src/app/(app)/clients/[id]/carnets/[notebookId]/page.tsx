@@ -59,6 +59,12 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
         >
           Voir les prêts
         </Link>
+        <Link
+          href={`/clients/${id}/carnets/${notebook.id}/retraits`}
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+        >
+          Voir les retraits
+        </Link>
       </div>
     </div>
   );

@@ -98,6 +98,26 @@ export type Loan = {
   updated_at: string;
 };
 
+export type Withdrawal = {
+  id: string;
+  agency_id: string;
+  notebook_id: string;
+  validator_id: string;
+  amount: string;
+  agency_gain: string | null;
+  withdrawal_mode: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Repayment = {
+  id: string;
+  loan_id: string;
+  amount_paid: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Collection = {
   id: string;
   agency_id: string;
