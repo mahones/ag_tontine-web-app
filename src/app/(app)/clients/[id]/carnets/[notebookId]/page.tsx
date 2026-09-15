@@ -4,7 +4,8 @@ import { requirePermission } from "@/lib/auth";
 import { apiFetch, ApiError } from "@/lib/api";
 import { hasPermission } from "@/lib/permissions";
 import { buttonVariants } from "@/components/ui/button";
-import type { ApiEnvelope, Notebook } from "@/lib/types";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import type { ApiEnvelope, Notebook, NotebookState } from "@/lib/types";
 import { NOTEBOOK_STATUS_LABELS } from "../schema";
 import { NotebookStatusForm } from "../notebook-status-form";
 import { updateNotebookStatusAction } from "../actions";
@@ -26,6 +27,7 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
     throw error;
   }
 
+  const { data: state } = await apiFetch<ApiEnvelope<NotebookState>>(`/notebooks/${notebookId}/state`);
   const boundUpdate = updateNotebookStatusAction.bind(null, notebook.id, id);
 
   return (
@@ -36,6 +38,40 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
           Année {notebook.year} · Cotisation {notebook.contribution_amount} · Statut actuel :{" "}
           {NOTEBOOK_STATUS_LABELS[notebook.status]}
         </p>
+        <p className="text-sm text-muted-foreground">Agence : {state.agency_name}</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardDescription>Montant total cotisé</CardDescription>
+            <CardTitle className="text-3xl">{state.total_amount_collected}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Cases cochées</CardDescription>
+            <CardTitle className="text-3xl">{state.total_boxes}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Cases agence</CardDescription>
+            <CardTitle className="text-3xl">{state.agency_boxes}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Mois écoulés</CardDescription>
+            <CardTitle className="text-3xl">{state.months_count}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Mois restants</CardDescription>
+            <CardTitle className="text-3xl">{state.months_remaining}</CardTitle>
+          </CardHeader>
+        </Card>
       </div>
 
       {hasPermission(user, "create_notebook") ? (
@@ -64,6 +100,12 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
           className={buttonVariants({ variant: "outline", size: "sm" })}
         >
           Voir les retraits
+        </Link>
+        <Link
+          href={`/clients/${id}/carnets/${notebook.id}/mises`}
+          className={buttonVariants({ variant: "outline", size: "sm" })}
+        >
+          Voir les mises
         </Link>
       </div>
     </div>

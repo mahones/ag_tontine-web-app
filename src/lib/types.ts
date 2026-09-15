@@ -80,7 +80,26 @@ export type Notebook = {
   notebook_number: string;
   year: number;
   contribution_amount: string;
+  pending_contribution_amount: string | null;
   status: "active" | "completed" | "cancelled" | "closed";
+  created_at: string;
+  updated_at: string;
+};
+
+export type NotebookState = {
+  agency_name: string;
+  total_amount_collected: string;
+  total_boxes: number;
+  agency_boxes: number;
+  months_count: number;
+  months_remaining: number;
+};
+
+export type MonthlyContribution = {
+  id: string;
+  notebook_id: string;
+  month: number;
+  amount: string;
   created_at: string;
   updated_at: string;
 };

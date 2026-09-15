@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { EyeIcon, HandCoinsIcon, PiggyBankIcon, PlusIcon, WalletIcon } from "lucide-react";
+import { CoinsIcon, EyeIcon, HandCoinsIcon, PiggyBankIcon, PlusIcon, WalletIcon } from "lucide-react";
 import { requirePermission } from "@/lib/auth";
 import { apiFetch, ApiError } from "@/lib/api";
 import { hasPermission } from "@/lib/permissions";
@@ -196,6 +196,20 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
                             <span className="sr-only">Retraits du carnet {notebook.notebook_number}</span>
                           </TooltipTrigger>
                           <TooltipContent>Retraits</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger
+                            render={
+                              <Link
+                                href={`/clients/${client.id}/carnets/${notebook.id}/mises`}
+                                className={buttonVariants({ variant: "outline", size: "icon-sm" })}
+                              />
+                            }
+                          >
+                            <CoinsIcon />
+                            <span className="sr-only">Mises du carnet {notebook.notebook_number}</span>
+                          </TooltipTrigger>
+                          <TooltipContent>Mises</TooltipContent>
                         </Tooltip>
                       </div>
                     </TableCell>
