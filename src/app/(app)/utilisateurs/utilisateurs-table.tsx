@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
 import { PencilIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -15,24 +15,29 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fullName } from "@/lib/roles";
-import type { ManagedUser } from "@/lib/types";
+import type { ManagedUser, PaginationMeta } from "@/lib/types";
+import { useListQuery } from "@/hooks/use-list-query";
 import { DeleteUserButton } from "./delete-user-button";
 import { ToggleUserActifButton } from "./toggle-user-actif-button";
 
 export function UtilisateursTable({
   users,
+  meta,
+  initialSearch = "",
   canManage = true,
   canEdit = canManage,
   callerRoleLevel = null,
 }: {
   users: ManagedUser[];
+  meta: PaginationMeta;
+  initialSearch?: string;
   /** Toggle-active and delete — Développeur only. */
   canManage?: boolean;
   /** Edit link, shown per row only for users the caller outranks (see rowIsEditable). */
   canEdit?: boolean;
   callerRoleLevel?: number | null;
 }) {
-  const [search, setSearch] = useState("");
+  const { search, setSearch, setPage } = useListQuery(initialSearch);
 
   // A Super Admin/Chef Agence can only edit staff with a strictly lower authority
   // (higher role level) than their own — mirrors the hierarchy check UserController
@@ -45,16 +50,6 @@ export function UtilisateursTable({
   }
 
   const actionsEnabled = canManage || canEdit;
-
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return users;
-    return users.filter((user) =>
-      [fullName(user), user.phone, user.email, user.role?.name ?? "", user.agency?.name ?? ""].some((value) =>
-        value.toLowerCase().includes(query),
-      ),
-    );
-  }, [users, search]);
 
   return (
     <div className="space-y-3">
@@ -81,14 +76,14 @@ export function UtilisateursTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {users.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={actionsEnabled ? 6 : 5} className="py-8 text-center text-muted-foreground">
                   Aucun utilisateur trouvé.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((user) => (
+              users.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{fullName(user)}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">
@@ -125,6 +120,8 @@ export function UtilisateursTable({
           </TableBody>
         </Table>
       </div>
+
+      <Pagination meta={meta} onPageChange={setPage} />
     </div>
   );
 }

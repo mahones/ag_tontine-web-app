@@ -3,7 +3,8 @@ import { PlusIcon } from "lucide-react";
 import { requireAgent } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { buttonVariants } from "@/components/ui/button";
-import type { ApiEnvelope, Prospect } from "@/lib/types";
+import { buildListQuery, currentSearchValue } from "@/lib/list-query";
+import type { PaginatedEnvelope, Prospect } from "@/lib/types";
 import { AgentProspectsTable } from "./prospects-table";
 
 export const metadata = {
@@ -13,10 +14,13 @@ export const metadata = {
 /**
  * Previews the /mobile/myprospects route on the web console ahead of the real mobile app.
  */
-export default async function AgentProspectsPage() {
+export default async function AgentProspectsPage(props: PageProps<"/agent/prospects">) {
   await requireAgent();
 
-  const { data: prospects } = await apiFetch<ApiEnvelope<Prospect[]>>("/mobile/myprospects");
+  const searchParams = await props.searchParams;
+  const { data: prospects, meta } = await apiFetch<PaginatedEnvelope<Prospect>>(
+    `/mobile/myprospects${buildListQuery(searchParams)}`,
+  );
 
   return (
     <div className="space-y-6">
@@ -31,7 +35,7 @@ export default async function AgentProspectsPage() {
         </Link>
       </div>
 
-      <AgentProspectsTable prospects={prospects} />
+      <AgentProspectsTable prospects={prospects} meta={meta} initialSearch={currentSearchValue(searchParams)} />
     </div>
   );
 }

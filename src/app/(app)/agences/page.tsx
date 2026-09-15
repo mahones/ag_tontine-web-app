@@ -3,17 +3,21 @@ import { PlusIcon } from "lucide-react";
 import { requireSuperAdmin } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { buttonVariants } from "@/components/ui/button";
-import type { ApiEnvelope, Agency } from "@/lib/types";
+import { buildListQuery, currentSearchValue } from "@/lib/list-query";
+import type { Agency, PaginatedEnvelope } from "@/lib/types";
 import { AgencesTable } from "./agences-table";
 
 export const metadata = {
   title: "Agences — Tontine",
 };
 
-export default async function AgencesPage() {
+export default async function AgencesPage(props: PageProps<"/agences">) {
   await requireSuperAdmin();
 
-  const { data: agencies } = await apiFetch<ApiEnvelope<Agency[]>>("/microfinance/agencies");
+  const searchParams = await props.searchParams;
+  const { data: agencies, meta } = await apiFetch<PaginatedEnvelope<Agency>>(
+    `/microfinance/agencies${buildListQuery(searchParams)}`,
+  );
 
   return (
     <div className="space-y-6">
@@ -30,7 +34,7 @@ export default async function AgencesPage() {
         </Link>
       </div>
 
-      <AgencesTable agencies={agencies} />
+      <AgencesTable agencies={agencies} meta={meta} initialSearch={currentSearchValue(searchParams)} />
     </div>
   );
 }

@@ -3,17 +3,21 @@ import { PlusIcon } from "lucide-react";
 import { requireDeveloper } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { buttonVariants } from "@/components/ui/button";
-import type { ApiEnvelope, Currency } from "@/lib/types";
+import { buildListQuery, currentSearchValue } from "@/lib/list-query";
+import type { Currency, PaginatedEnvelope } from "@/lib/types";
 import { DevisesTable } from "./devises-table";
 
 export const metadata = {
   title: "Devises — Tontine",
 };
 
-export default async function DevisesPage() {
+export default async function DevisesPage(props: PageProps<"/devises">) {
   await requireDeveloper();
 
-  const { data: currencies } = await apiFetch<ApiEnvelope<Currency[]>>("/currencies");
+  const searchParams = await props.searchParams;
+  const { data: currencies, meta } = await apiFetch<PaginatedEnvelope<Currency>>(
+    `/currencies${buildListQuery(searchParams)}`,
+  );
 
   return (
     <div className="space-y-6">
@@ -30,7 +34,7 @@ export default async function DevisesPage() {
         </Link>
       </div>
 
-      <DevisesTable currencies={currencies} />
+      <DevisesTable currencies={currencies} meta={meta} initialSearch={currentSearchValue(searchParams)} />
     </div>
   );
 }

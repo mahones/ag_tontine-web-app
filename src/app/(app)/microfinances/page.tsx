@@ -3,17 +3,21 @@ import { PlusIcon } from "lucide-react";
 import { requireDeveloper } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { buttonVariants } from "@/components/ui/button";
-import type { ApiEnvelope, Microfinance } from "@/lib/types";
+import { buildListQuery, currentSearchValue } from "@/lib/list-query";
+import type { Microfinance, PaginatedEnvelope } from "@/lib/types";
 import { MicrofinancesTable } from "./microfinances-table";
 
 export const metadata = {
   title: "Microfinances — Tontine",
 };
 
-export default async function MicrofinancesPage() {
+export default async function MicrofinancesPage(props: PageProps<"/microfinances">) {
   await requireDeveloper();
 
-  const { data: microfinances } = await apiFetch<ApiEnvelope<Microfinance[]>>("/microfinances");
+  const searchParams = await props.searchParams;
+  const { data: microfinances, meta } = await apiFetch<PaginatedEnvelope<Microfinance>>(
+    `/microfinances${buildListQuery(searchParams)}`,
+  );
 
   return (
     <div className="space-y-6">
@@ -30,7 +34,11 @@ export default async function MicrofinancesPage() {
         </Link>
       </div>
 
-      <MicrofinancesTable microfinances={microfinances} />
+      <MicrofinancesTable
+        microfinances={microfinances}
+        meta={meta}
+        initialSearch={currentSearchValue(searchParams)}
+      />
     </div>
   );
 }

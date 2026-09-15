@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { PencilIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -13,33 +14,28 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Configuration, Microfinance } from "@/lib/types";
+import type { Configuration, Microfinance, PaginationMeta } from "@/lib/types";
+import { useListQuery } from "@/hooks/use-list-query";
 import { DeleteConfigurationButton } from "./delete-configuration-button";
 
 export function ConfigurationsTable({
   configurations,
   microfinances,
+  meta,
+  initialSearch = "",
 }: {
   configurations: Configuration[];
   microfinances: Microfinance[];
+  meta: PaginationMeta;
+  initialSearch?: string;
 }) {
-  const [search, setSearch] = useState("");
+  const { search, setSearch, setPage } = useListQuery(initialSearch);
 
   const microfinanceNames = useMemo(() => {
     const map = new Map<string, string>();
     for (const microfinance of microfinances) map.set(microfinance.id, microfinance.name);
     return map;
   }, [microfinances]);
-
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return configurations;
-    return configurations.filter((configuration) =>
-      [configuration.key, configuration.value, microfinanceNames.get(configuration.microfinance_id) ?? ""].some(
-        (value) => value.toLowerCase().includes(query),
-      ),
-    );
-  }, [configurations, microfinanceNames, search]);
 
   return (
     <div className="space-y-3">
@@ -64,14 +60,14 @@ export function ConfigurationsTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {configurations.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
                   Aucune configuration trouvée.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((configuration) => (
+              configurations.map((configuration) => (
                 <TableRow key={configuration.id}>
                   <TableCell>
                     {microfinanceNames.get(configuration.microfinance_id) ?? configuration.microfinance_id}
@@ -96,6 +92,8 @@ export function ConfigurationsTable({
           </TableBody>
         </Table>
       </div>
+
+      <Pagination meta={meta} onPageChange={setPage} />
     </div>
   );
 }

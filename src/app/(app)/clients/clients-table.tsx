@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
 import { EyeIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -13,21 +13,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Client } from "@/lib/types";
+import type { Client, PaginationMeta } from "@/lib/types";
 import { formatPersonName } from "@/lib/format-name";
+import { useListQuery } from "@/hooks/use-list-query";
 
-export function ClientsTable({ clients }: { clients: Client[] }) {
-  const [search, setSearch] = useState("");
-
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return clients;
-    return clients.filter((client) =>
-      [client.first_name, client.last_name, client.phone, client.address].some((value) =>
-        value.toLowerCase().includes(query),
-      ),
-    );
-  }, [clients, search]);
+export function ClientsTable({
+  clients,
+  meta,
+  initialSearch = "",
+}: {
+  clients: Client[];
+  meta: PaginationMeta;
+  initialSearch?: string;
+}) {
+  const { search, setSearch, setPage } = useListQuery(initialSearch);
 
   return (
     <div className="space-y-3">
@@ -52,14 +51,14 @@ export function ClientsTable({ clients }: { clients: Client[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {clients.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
                   Aucun client trouvé.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((client) => (
+              clients.map((client) => (
                 <TableRow key={client.id}>
                   <TableCell className="font-medium">
                     {formatPersonName(client.first_name, client.last_name)}
@@ -85,6 +84,8 @@ export function ClientsTable({ clients }: { clients: Client[] }) {
           </TableBody>
         </Table>
       </div>
+
+      <Pagination meta={meta} onPageChange={setPage} />
     </div>
   );
 }

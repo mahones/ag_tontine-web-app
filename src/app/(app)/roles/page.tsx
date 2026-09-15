@@ -3,17 +3,19 @@ import { PlusIcon } from "lucide-react";
 import { requireDeveloper } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { buttonVariants } from "@/components/ui/button";
-import type { ApiEnvelope, Role } from "@/lib/types";
+import { buildListQuery, currentSearchValue } from "@/lib/list-query";
+import type { PaginatedEnvelope, Role } from "@/lib/types";
 import { RolesTable } from "./roles-table";
 
 export const metadata = {
   title: "Rôles — Tontine",
 };
 
-export default async function RolesPage() {
+export default async function RolesPage(props: PageProps<"/roles">) {
   await requireDeveloper();
 
-  const { data: roles } = await apiFetch<ApiEnvelope<Role[]>>("/roles");
+  const searchParams = await props.searchParams;
+  const { data: roles, meta } = await apiFetch<PaginatedEnvelope<Role>>(`/roles${buildListQuery(searchParams)}`);
 
   return (
     <div className="space-y-6">
@@ -30,7 +32,7 @@ export default async function RolesPage() {
         </Link>
       </div>
 
-      <RolesTable roles={roles} />
+      <RolesTable roles={roles} meta={meta} initialSearch={currentSearchValue(searchParams)} />
     </div>
   );
 }

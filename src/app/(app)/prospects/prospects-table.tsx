@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -12,8 +12,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Prospect } from "@/lib/types";
+import type { PaginationMeta, Prospect } from "@/lib/types";
 import { formatPersonName } from "@/lib/format-name";
+import { useListQuery } from "@/hooks/use-list-query";
 
 const STATUS_LABELS: Record<Prospect["status"], string> = {
   pending: "En attente",
@@ -29,18 +30,16 @@ const STATUS_BADGE_VARIANT: Record<Prospect["status"], "default" | "secondary" |
   converted: "default",
 };
 
-export function ProspectsTable({ prospects }: { prospects: Prospect[] }) {
-  const [search, setSearch] = useState("");
-
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return prospects;
-    return prospects.filter((prospect) =>
-      [prospect.first_name, prospect.last_name, prospect.phone, prospect.address].some((value) =>
-        value.toLowerCase().includes(query),
-      ),
-    );
-  }, [prospects, search]);
+export function ProspectsTable({
+  prospects,
+  meta,
+  initialSearch = "",
+}: {
+  prospects: Prospect[];
+  meta: PaginationMeta;
+  initialSearch?: string;
+}) {
+  const { search, setSearch, setPage } = useListQuery(initialSearch);
 
   return (
     <div className="space-y-3">
@@ -68,14 +67,14 @@ export function ProspectsTable({ prospects }: { prospects: Prospect[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {prospects.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                   Aucun prospect trouvé.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((prospect) => (
+              prospects.map((prospect) => (
                 <TableRow key={prospect.id}>
                   <TableCell className="font-medium">
                     {formatPersonName(prospect.first_name, prospect.last_name)}
@@ -100,6 +99,8 @@ export function ProspectsTable({ prospects }: { prospects: Prospect[] }) {
           </TableBody>
         </Table>
       </div>
+
+      <Pagination meta={meta} onPageChange={setPage} />
     </div>
   );
 }

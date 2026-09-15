@@ -1,19 +1,22 @@
 import { requireSuperAdmin } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
-import type { ApiEnvelope, Prospect } from "@/lib/types";
+import { buildListQuery, currentSearchValue } from "@/lib/list-query";
+import type { PaginatedEnvelope, Prospect } from "@/lib/types";
 import { ProspectsTable } from "./prospects-table";
 
 export const metadata = {
   title: "Prospects — Tontine",
 };
 
-export default async function ProspectsPage() {
+export default async function ProspectsPage(props: PageProps<"/prospects">) {
   const user = await requireSuperAdmin();
+
+  const searchParams = await props.searchParams;
 
   // The backend ignores the {agency} route segment and always scopes to the caller's own
   // agency_id — passed here anyway in case that ever changes server-side.
-  const { data: prospects } = await apiFetch<ApiEnvelope<Prospect[]>>(
-    `/prospects/agency/${user.agency_id}`,
+  const { data: prospects, meta } = await apiFetch<PaginatedEnvelope<Prospect>>(
+    `/prospects/agency/${user.agency_id}${buildListQuery(searchParams)}`,
   );
 
   return (
@@ -26,7 +29,7 @@ export default async function ProspectsPage() {
         </p>
       </div>
 
-      <ProspectsTable prospects={prospects} />
+      <ProspectsTable prospects={prospects} meta={meta} initialSearch={currentSearchValue(searchParams)} />
     </div>
   );
 }

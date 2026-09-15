@@ -1,3 +1,18 @@
+import {
+  Banknote,
+  Building2,
+  Coins,
+  FileBadge2,
+  HandCoins,
+  Landmark,
+  PiggyBank,
+  Settings,
+  ShieldCheck,
+  TriangleAlert,
+  UserCheck,
+  UserPlus,
+  Users,
+} from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { hasPermission } from "@/lib/permissions";
@@ -58,6 +73,7 @@ export default async function DashboardPage() {
           label="Microfinances"
           count={microfinances.data.length}
           description="Toutes les microfinances de la plateforme."
+          icon={Landmark}
         />
         {/* /agences is reserved to Super Admin (exact role level); Développeur browses
             agencies per-microfinance via /microfinances/[id]/agences instead. */}
@@ -66,37 +82,49 @@ export default async function DashboardPage() {
           label="Agences"
           count={agencies.data.length}
           description="Toutes agences, toutes microfinances confondues — ouvrez une microfinance pour les voir."
+          icon={Building2}
         />
         <DashboardCard
           href="/utilisateurs"
           label="Utilisateurs"
           count={users.data.length}
           description="Tous les comptes de la plateforme."
+          icon={Users}
         />
         <DashboardCard
           href="/clients"
           label="Clients"
           count={clients.data.length}
           description="Tous les clients, toutes agences confondues."
+          icon={UserCheck}
         />
-        <DashboardCard href="/roles" label="Rôles" count={roles.data.length} description="Rôles définis." />
+        <DashboardCard
+          href="/roles"
+          label="Rôles"
+          count={roles.data.length}
+          description="Rôles définis."
+          icon={ShieldCheck}
+        />
         <DashboardCard
           href="/devises"
           label="Devises"
           count={currencies.data.length}
           description="Devises disponibles."
+          icon={Coins}
         />
         <DashboardCard
           href="/configurations"
           label="Configurations"
           count={configurations.data.length}
           description="Paramètres techniques."
+          icon={Settings}
         />
         <DashboardCard
           href="/licences"
           label="Licences"
           count={licences.data.length}
           description="Licences émises."
+          icon={FileBadge2}
         />
       </>
     );
@@ -117,24 +145,28 @@ export default async function DashboardPage() {
           label="Agences"
           count={agencies.data.length}
           description="Agences de votre microfinance."
+          icon={Building2}
         />
         <DashboardCard
           href="/utilisateurs"
           label="Utilisateurs"
           count={users.data.length}
           description="Comptes de votre microfinance."
+          icon={Users}
         />
         <DashboardCard
           href="/clients"
           label="Clients"
           count={clients.data.length}
           description="Clients de votre siège."
+          icon={UserCheck}
         />
         <DashboardCard
           href="/prospects"
           label="Prospects"
           count={prospects.data.length}
           description="Prospects en attente de conversion."
+          icon={UserPlus}
         />
       </>
     );
@@ -153,12 +185,14 @@ export default async function DashboardPage() {
           label="Utilisateurs"
           count={users.data.length}
           description="Comptes de votre agence."
+          icon={Users}
         />
         <DashboardCard
           href="/clients"
           label="Clients"
           count={clients.data.length}
           description="Clients de votre agence."
+          icon={UserCheck}
         />
       </>
     );
@@ -175,12 +209,14 @@ export default async function DashboardPage() {
           label="Mes prospects"
           count={prospects.data.length}
           description="Prospects que vous avez enregistrés."
+          icon={UserPlus}
         />
         <DashboardCard
           href="/agent/clients"
           label="Mes clients"
           count={clients.data.length}
           description="Clients issus de vos prospects convertis."
+          icon={UserCheck}
         />
       </>
     );
@@ -193,6 +229,7 @@ export default async function DashboardPage() {
         label="Clients"
         count={clients.length}
         description="Clients de votre agence."
+        icon={UserCheck}
       />
     );
   }
@@ -204,38 +241,44 @@ export default async function DashboardPage() {
         <p className="text-sm text-muted-foreground">Bienvenue, {user.first_name}.</p>
       </div>
 
-      {stats && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <DashboardStatCard
-            label="Cotisations ce mois-ci"
-            value={stats.cotisations.this_month}
-            description={`Cumul : ${new Intl.NumberFormat("fr-FR").format(stats.cotisations.total)}`}
-          />
-          <DashboardStatCard
-            label="Prêts en cours"
-            value={stats.loans.active_count}
-            description={`Montant en cours : ${new Intl.NumberFormat("fr-FR").format(stats.loans.active_amount)}`}
-          />
-          <DashboardStatCard
-            label="Prêts en retard"
-            value={stats.loans.overdue_count}
-            description={`Montant estimé en retard : ${new Intl.NumberFormat("fr-FR").format(stats.loans.overdue_amount)}`}
-          />
-          <DashboardStatCard
-            label="Retraits ce mois-ci"
-            value={stats.withdrawals.this_month}
-            description={`Cumul : ${new Intl.NumberFormat("fr-FR").format(stats.withdrawals.total)}`}
-          />
-          <DashboardStatCard
-            label="Nouveaux prospects (7 jours)"
-            value={stats.prospects.last_7_days}
-            description={`${stats.prospects.pending} en attente de conversion — ${stats.prospects.last_30_days} sur 30 jours.`}
-          />
+      {stats || cards ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {stats && (
+            <>
+              <DashboardStatCard
+                label="Cotisations ce mois-ci"
+                value={stats.cotisations.this_month}
+                description={`Cumul : ${new Intl.NumberFormat("fr-FR").format(stats.cotisations.total)}`}
+                icon={PiggyBank}
+              />
+              <DashboardStatCard
+                label="Prêts en cours"
+                value={stats.loans.active_count}
+                description={`Montant en cours : ${new Intl.NumberFormat("fr-FR").format(stats.loans.active_amount)}`}
+                icon={HandCoins}
+              />
+              <DashboardStatCard
+                label="Prêts en retard"
+                value={stats.loans.overdue_count}
+                description={`Montant estimé en retard : ${new Intl.NumberFormat("fr-FR").format(stats.loans.overdue_amount)}`}
+                icon={TriangleAlert}
+              />
+              <DashboardStatCard
+                label="Retraits ce mois-ci"
+                value={stats.withdrawals.this_month}
+                description={`Cumul : ${new Intl.NumberFormat("fr-FR").format(stats.withdrawals.total)}`}
+                icon={Banknote}
+              />
+              <DashboardStatCard
+                label="Nouveaux prospects (7 jours)"
+                value={stats.prospects.last_7_days}
+                description={`${stats.prospects.pending} en attente de conversion — ${stats.prospects.last_30_days} sur 30 jours.`}
+                icon={UserPlus}
+              />
+            </>
+          )}
+          {cards}
         </div>
-      )}
-
-      {cards ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{cards}</div>
       ) : (
         <Card className="max-w-md">
           <CardHeader>

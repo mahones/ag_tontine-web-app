@@ -3,18 +3,21 @@ import { PlusIcon } from "lucide-react";
 import { requireDeveloper } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { buttonVariants } from "@/components/ui/button";
-import type { ApiEnvelope, Licence, Microfinance } from "@/lib/types";
+import { buildListQuery, currentSearchValue } from "@/lib/list-query";
+import type { ApiEnvelope, Licence, Microfinance, PaginatedEnvelope } from "@/lib/types";
 import { LicencesTable } from "./licences-table";
 
 export const metadata = {
   title: "Licences — Tontine",
 };
 
-export default async function LicencesPage() {
+export default async function LicencesPage(props: PageProps<"/licences">) {
   await requireDeveloper();
 
-  const [{ data: licences }, { data: microfinances }] = await Promise.all([
-    apiFetch<ApiEnvelope<Licence[]>>("/licences"),
+  const searchParams = await props.searchParams;
+
+  const [{ data: licences, meta }, { data: microfinances }] = await Promise.all([
+    apiFetch<PaginatedEnvelope<Licence>>(`/licences${buildListQuery(searchParams)}`),
     apiFetch<ApiEnvelope<Microfinance[]>>("/microfinances"),
   ]);
 
@@ -33,7 +36,12 @@ export default async function LicencesPage() {
         </Link>
       </div>
 
-      <LicencesTable licences={licences} microfinances={microfinances} />
+      <LicencesTable
+        licences={licences}
+        microfinances={microfinances}
+        meta={meta}
+        initialSearch={currentSearchValue(searchParams)}
+      />
     </div>
   );
 }

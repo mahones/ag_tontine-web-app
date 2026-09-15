@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { PencilIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -14,7 +15,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Licence, Microfinance } from "@/lib/types";
+import type { Licence, Microfinance, PaginationMeta } from "@/lib/types";
+import { useListQuery } from "@/hooks/use-list-query";
 import { LICENCE_STATUS_LABELS } from "./schema";
 import { CopyLicenceKeyButton } from "./copy-licence-key-button";
 import { DeleteLicenceButton } from "./delete-licence-button";
@@ -28,27 +30,21 @@ const STATUS_BADGE_VARIANT: Record<Licence["status"], "default" | "secondary" | 
 export function LicencesTable({
   licences,
   microfinances,
+  meta,
+  initialSearch = "",
 }: {
   licences: Licence[];
   microfinances: Microfinance[];
+  meta: PaginationMeta;
+  initialSearch?: string;
 }) {
-  const [search, setSearch] = useState("");
+  const { search, setSearch, setPage } = useListQuery(initialSearch);
 
   const microfinanceNames = useMemo(() => {
     const map = new Map<string, string>();
     for (const microfinance of microfinances) map.set(microfinance.id, microfinance.name);
     return map;
   }, [microfinances]);
-
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return licences;
-    return licences.filter((licence) =>
-      [licence.licence_key, microfinanceNames.get(licence.microfinance_id) ?? ""].some((value) =>
-        value.toLowerCase().includes(query),
-      ),
-    );
-  }, [licences, microfinanceNames, search]);
 
   return (
     <div className="space-y-3">
@@ -74,14 +70,14 @@ export function LicencesTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {licences.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                   Aucune licence trouvée.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((licence) => (
+              licences.map((licence) => (
                 <TableRow key={licence.id}>
                   <TableCell>{microfinanceNames.get(licence.microfinance_id) ?? licence.microfinance_id}</TableCell>
                   <TableCell className="max-w-[240px] whitespace-normal">
@@ -116,6 +112,8 @@ export function LicencesTable({
           </TableBody>
         </Table>
       </div>
+
+      <Pagination meta={meta} onPageChange={setPage} />
     </div>
   );
 }

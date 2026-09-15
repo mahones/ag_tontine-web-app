@@ -8,6 +8,16 @@ export type ApiEnvelope<T> = {
   data: T;
 };
 
+export type PaginationMeta = {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+};
+
+/** Same envelope as a paginated list endpoint (`?page=`/`?per_page=`/`?search=`). */
+export type PaginatedEnvelope<T> = ApiEnvelope<T[]> & { meta: PaginationMeta };
+
 export type Role = {
   id: string;
   name: string;

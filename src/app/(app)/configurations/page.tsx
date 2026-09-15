@@ -3,18 +3,21 @@ import { PlusIcon } from "lucide-react";
 import { requireDeveloper } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { buttonVariants } from "@/components/ui/button";
-import type { ApiEnvelope, Configuration, Microfinance } from "@/lib/types";
+import { buildListQuery, currentSearchValue } from "@/lib/list-query";
+import type { ApiEnvelope, Configuration, Microfinance, PaginatedEnvelope } from "@/lib/types";
 import { ConfigurationsTable } from "./configurations-table";
 
 export const metadata = {
   title: "Configurations — Tontine",
 };
 
-export default async function ConfigurationsPage() {
+export default async function ConfigurationsPage(props: PageProps<"/configurations">) {
   await requireDeveloper();
 
-  const [{ data: configurations }, { data: microfinances }] = await Promise.all([
-    apiFetch<ApiEnvelope<Configuration[]>>("/configurations"),
+  const searchParams = await props.searchParams;
+
+  const [{ data: configurations, meta }, { data: microfinances }] = await Promise.all([
+    apiFetch<PaginatedEnvelope<Configuration>>(`/configurations${buildListQuery(searchParams)}`),
     apiFetch<ApiEnvelope<Microfinance[]>>("/microfinances"),
   ]);
 
@@ -33,7 +36,12 @@ export default async function ConfigurationsPage() {
         </Link>
       </div>
 
-      <ConfigurationsTable configurations={configurations} microfinances={microfinances} />
+      <ConfigurationsTable
+        configurations={configurations}
+        microfinances={microfinances}
+        meta={meta}
+        initialSearch={currentSearchValue(searchParams)}
+      />
     </div>
   );
 }

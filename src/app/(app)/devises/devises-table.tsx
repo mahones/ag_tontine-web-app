@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
 import { PencilIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -13,19 +13,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Currency } from "@/lib/types";
+import type { Currency, PaginationMeta } from "@/lib/types";
+import { useListQuery } from "@/hooks/use-list-query";
 import { DeleteCurrencyButton } from "./delete-devise-button";
 
-export function DevisesTable({ currencies }: { currencies: Currency[] }) {
-  const [search, setSearch] = useState("");
-
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return currencies;
-    return currencies.filter((currency) =>
-      [currency.code, currency.name].some((value) => value.toLowerCase().includes(query)),
-    );
-  }, [currencies, search]);
+export function DevisesTable({
+  currencies,
+  meta,
+  initialSearch = "",
+}: {
+  currencies: Currency[];
+  meta: PaginationMeta;
+  initialSearch?: string;
+}) {
+  const { search, setSearch, setPage } = useListQuery(initialSearch);
 
   return (
     <div className="space-y-3">
@@ -49,14 +50,14 @@ export function DevisesTable({ currencies }: { currencies: Currency[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {currencies.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={3} className="py-8 text-center text-muted-foreground">
                   Aucune devise trouvée.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((currency) => (
+              currencies.map((currency) => (
                 <TableRow key={currency.id}>
                   <TableCell className="font-mono text-xs">{currency.code}</TableCell>
                   <TableCell className="font-medium">{currency.name}</TableCell>
@@ -78,6 +79,8 @@ export function DevisesTable({ currencies }: { currencies: Currency[] }) {
           </TableBody>
         </Table>
       </div>
+
+      <Pagination meta={meta} onPageChange={setPage} />
     </div>
   );
 }

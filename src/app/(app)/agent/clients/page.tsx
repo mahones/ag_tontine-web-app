@@ -1,6 +1,7 @@
 import { requireAgent } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
-import type { ApiEnvelope, Client } from "@/lib/types";
+import { buildListQuery, currentSearchValue } from "@/lib/list-query";
+import type { Client, PaginatedEnvelope } from "@/lib/types";
 import { AgentClientsTable } from "./agent-clients-table";
 
 export const metadata = {
@@ -10,10 +11,13 @@ export const metadata = {
 /**
  * Previews the /mobile/clients/agent/{agent} route on the web console.
  */
-export default async function AgentClientsPage() {
+export default async function AgentClientsPage(props: PageProps<"/agent/clients">) {
   const user = await requireAgent();
 
-  const { data: clients } = await apiFetch<ApiEnvelope<Client[]>>(`/mobile/clients/agent/${user.id}`);
+  const searchParams = await props.searchParams;
+  const { data: clients, meta } = await apiFetch<PaginatedEnvelope<Client>>(
+    `/mobile/clients/agent/${user.id}${buildListQuery(searchParams)}`,
+  );
 
   return (
     <div className="space-y-6">
@@ -22,7 +26,7 @@ export default async function AgentClientsPage() {
         <p className="text-sm text-muted-foreground">Clients issus de vos prospects convertis.</p>
       </div>
 
-      <AgentClientsTable clients={clients} />
+      <AgentClientsTable clients={clients} meta={meta} initialSearch={currentSearchValue(searchParams)} />
     </div>
   );
 }

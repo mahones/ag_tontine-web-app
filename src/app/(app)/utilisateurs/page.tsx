@@ -6,7 +6,8 @@ import { apiFetch } from "@/lib/api";
 import { hasPermission } from "@/lib/permissions";
 import { isDeveloper, isMicrofinanceOwner } from "@/lib/roles";
 import { buttonVariants } from "@/components/ui/button";
-import type { ApiEnvelope, ManagedUser } from "@/lib/types";
+import { buildListQuery, currentSearchValue } from "@/lib/list-query";
+import type { ManagedUser, PaginatedEnvelope } from "@/lib/types";
 import { UtilisateursTable } from "./utilisateurs-table";
 
 export const metadata = {
@@ -21,13 +22,16 @@ export const metadata = {
  * outrank them numerically lower — the table filters that per row, the backend enforces
  * it regardless. Toggle/delete stay dev-only server-side (see actions.ts).
  */
-export default async function UtilisateursPage() {
+export default async function UtilisateursPage(props: PageProps<"/utilisateurs">) {
   const user = await requireUser();
   const dev = isDeveloper(user);
   if (!dev && !hasPermission(user, "manage_users")) redirect("/dashboard");
 
+  const searchParams = await props.searchParams;
   const endpoint = dev ? "/users" : isMicrofinanceOwner(user) ? "/microfinance/users" : "/agency/users";
-  const { data: users } = await apiFetch<ApiEnvelope<ManagedUser[]>>(endpoint);
+  const { data: users, meta } = await apiFetch<PaginatedEnvelope<ManagedUser>>(
+    `${endpoint}${buildListQuery(searchParams)}`,
+  );
 
   return (
     <div className="space-y-6">
@@ -50,7 +54,14 @@ export default async function UtilisateursPage() {
         )}
       </div>
 
-      <UtilisateursTable users={users} canManage={dev} canEdit={dev || hasPermission(user, "manage_users")} callerRoleLevel={user.role?.level ?? null} />
+      <UtilisateursTable
+        users={users}
+        meta={meta}
+        initialSearch={currentSearchValue(searchParams)}
+        canManage={dev}
+        canEdit={dev || hasPermission(user, "manage_users")}
+        callerRoleLevel={user.role?.level ?? null}
+      />
     </div>
   );
 }

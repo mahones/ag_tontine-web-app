@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
 import { PencilIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -14,17 +14,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Role } from "@/lib/types";
+import type { PaginationMeta, Role } from "@/lib/types";
+import { useListQuery } from "@/hooks/use-list-query";
 import { DeleteRoleButton } from "./delete-role-button";
 
-export function RolesTable({ roles }: { roles: Role[] }) {
-  const [search, setSearch] = useState("");
-
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return roles;
-    return roles.filter((role) => role.name.toLowerCase().includes(query));
-  }, [roles, search]);
+export function RolesTable({
+  roles,
+  meta,
+  initialSearch = "",
+}: {
+  roles: Role[];
+  meta: PaginationMeta;
+  initialSearch?: string;
+}) {
+  const { search, setSearch, setPage } = useListQuery(initialSearch);
 
   return (
     <div className="space-y-3">
@@ -48,14 +51,14 @@ export function RolesTable({ roles }: { roles: Role[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {roles.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={3} className="py-8 text-center text-muted-foreground">
                   Aucun rôle trouvé.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((role) => (
+              roles.map((role) => (
                 <TableRow key={role.id}>
                   <TableCell className="font-medium">{role.name}</TableCell>
                   <TableCell>
@@ -79,6 +82,8 @@ export function RolesTable({ roles }: { roles: Role[] }) {
           </TableBody>
         </Table>
       </div>
+
+      <Pagination meta={meta} onPageChange={setPage} />
     </div>
   );
 }

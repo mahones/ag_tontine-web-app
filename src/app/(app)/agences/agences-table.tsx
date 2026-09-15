@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
 import { PencilIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -14,20 +14,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Agency } from "@/lib/types";
+import type { Agency, PaginationMeta } from "@/lib/types";
+import { useListQuery } from "@/hooks/use-list-query";
 
-export function AgencesTable({ agencies }: { agencies: Agency[] }) {
-  const [search, setSearch] = useState("");
-
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return agencies;
-    return agencies.filter((agency) =>
-      [agency.code_agency, agency.name, agency.address, agency.phone].some((value) =>
-        value.toLowerCase().includes(query),
-      ),
-    );
-  }, [agencies, search]);
+export function AgencesTable({
+  agencies,
+  meta,
+  initialSearch = "",
+}: {
+  agencies: Agency[];
+  meta: PaginationMeta;
+  initialSearch?: string;
+}) {
+  const { search, setSearch, setPage } = useListQuery(initialSearch);
 
   return (
     <div className="space-y-3">
@@ -55,14 +54,14 @@ export function AgencesTable({ agencies }: { agencies: Agency[] }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {agencies.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                   Aucune agence trouvée.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((agency) => (
+              agencies.map((agency) => (
                 <TableRow key={agency.id}>
                   <TableCell className="font-mono text-xs">{agency.code_agency}</TableCell>
                   <TableCell className="font-medium">{agency.name}</TableCell>
@@ -89,6 +88,8 @@ export function AgencesTable({ agencies }: { agencies: Agency[] }) {
           </TableBody>
         </Table>
       </div>
+
+      <Pagination meta={meta} onPageChange={setPage} />
     </div>
   );
 }

@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
 import { BuildingIcon, PencilIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -13,21 +13,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Microfinance } from "@/lib/types";
+import type { Microfinance, PaginationMeta } from "@/lib/types";
+import { useListQuery } from "@/hooks/use-list-query";
 import { DeleteMicrofinanceButton } from "./delete-microfinance-button";
 
-export function MicrofinancesTable({ microfinances }: { microfinances: Microfinance[] }) {
-  const [search, setSearch] = useState("");
-
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    if (!query) return microfinances;
-    return microfinances.filter((microfinance) =>
-      [microfinance.name, microfinance.code, microfinance.country].some((value) =>
-        value.toLowerCase().includes(query),
-      ),
-    );
-  }, [microfinances, search]);
+export function MicrofinancesTable({
+  microfinances,
+  meta,
+  initialSearch = "",
+}: {
+  microfinances: Microfinance[];
+  meta: PaginationMeta;
+  initialSearch?: string;
+}) {
+  const { search, setSearch, setPage } = useListQuery(initialSearch);
 
   return (
     <div className="space-y-3">
@@ -53,14 +52,14 @@ export function MicrofinancesTable({ microfinances }: { microfinances: Microfina
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {microfinances.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                   Aucune microfinance trouvée.
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((microfinance) => (
+              microfinances.map((microfinance) => (
                 <TableRow key={microfinance.id}>
                   <TableCell className="font-mono text-xs">{microfinance.code}</TableCell>
                   <TableCell className="font-medium">{microfinance.name}</TableCell>
@@ -101,6 +100,8 @@ export function MicrofinancesTable({ microfinances }: { microfinances: Microfina
           </TableBody>
         </Table>
       </div>
+
+      <Pagination meta={meta} onPageChange={setPage} />
     </div>
   );
 }
