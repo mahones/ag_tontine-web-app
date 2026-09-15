@@ -1,6 +1,6 @@
 # Tontine — Frontend
 
-Console d'administration Next.js pour l'API [ag_tontine](../ag_tontine). Il n'y a pas de page
+Console d'administration Next.js pour l'API [ag_tontine]( ). Il n'y a pas de page
 d'inscription : seul un compte **Développeur** (créé côté backend) peut se connecter, créer les
 microfinances et leurs comptes propriétaires, qui créent ensuite le personnel de leur microfinance.
 

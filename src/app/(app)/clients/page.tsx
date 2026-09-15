@@ -14,7 +14,10 @@ export const metadata = {
 export default async function ClientsPage() {
   const user = await requirePermission("view_clients");
 
-  const { data: clients } = await apiFetch<ApiEnvelope<Client[]>>("/agency/clients");
+  // /agency/clients is gated by create_notebook, which Caissier lacks; /clients/agency/{agency}
+  // is the same clientsByAgency() action (it ignores the {agency} param, using the caller's
+  // own agency_id either way) but correctly gated by view_clients, matching this page's guard.
+  const { data: clients } = await apiFetch<ApiEnvelope<Client[]>>(`/clients/agency/${user.agency_id}`);
 
   return (
     <div className="space-y-6">

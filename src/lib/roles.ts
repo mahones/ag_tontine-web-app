@@ -21,6 +21,15 @@ export function isMicrofinanceOwner(user: Pick<AuthUser, "role">): boolean {
   return user.role?.level === ROLE_LEVEL.SUPER_ADMIN;
 }
 
+export function isChefAgence(user: Pick<AuthUser, "role">): boolean {
+  return user.role?.level === ROLE_LEVEL.CHEF_AGENCE;
+}
+
+/** Level 4 alone isn't quite enough (mirrors the backend's own is_agent flag on the model). */
+export function isAgent(user: Pick<AuthUser, "role" | "is_agent">): boolean {
+  return user.role?.level === ROLE_LEVEL.AGENT && user.is_agent === true;
+}
+
 export function fullName(user: Pick<AuthUser, "first_name" | "last_name">): string {
   return `${user.first_name} ${user.last_name}`.trim();
 }

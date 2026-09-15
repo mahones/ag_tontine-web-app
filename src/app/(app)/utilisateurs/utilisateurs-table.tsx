@@ -19,7 +19,13 @@ import type { ManagedUser } from "@/lib/types";
 import { DeleteUserButton } from "./delete-user-button";
 import { ToggleUserActifButton } from "./toggle-user-actif-button";
 
-export function UtilisateursTable({ users }: { users: ManagedUser[] }) {
+export function UtilisateursTable({
+  users,
+  actionsEnabled = true,
+}: {
+  users: ManagedUser[];
+  actionsEnabled?: boolean;
+}) {
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
@@ -53,13 +59,13 @@ export function UtilisateursTable({ users }: { users: ManagedUser[] }) {
               <TableHead>Rôle</TableHead>
               <TableHead>Agence</TableHead>
               <TableHead>Statut</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              {actionsEnabled && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={actionsEnabled ? 6 : 5} className="py-8 text-center text-muted-foreground">
                   Aucun utilisateur trouvé.
                 </TableCell>
               </TableRow>
@@ -78,19 +84,21 @@ export function UtilisateursTable({ users }: { users: ManagedUser[] }) {
                       {user.is_active ? "Actif" : "Inactif"}
                     </Badge>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex justify-end gap-1.5">
-                      <ToggleUserActifButton id={user.id} isActive={user.is_active} />
-                      <Link
-                        href={`/utilisateurs/${user.id}`}
-                        className={buttonVariants({ variant: "outline", size: "icon-sm" })}
-                      >
-                        <PencilIcon />
-                        <span className="sr-only">Modifier {fullName(user)}</span>
-                      </Link>
-                      <DeleteUserButton id={user.id} name={fullName(user)} />
-                    </div>
-                  </TableCell>
+                  {actionsEnabled && (
+                    <TableCell>
+                      <div className="flex justify-end gap-1.5">
+                        <ToggleUserActifButton id={user.id} isActive={user.is_active} />
+                        <Link
+                          href={`/utilisateurs/${user.id}`}
+                          className={buttonVariants({ variant: "outline", size: "icon-sm" })}
+                        >
+                          <PencilIcon />
+                          <span className="sr-only">Modifier {fullName(user)}</span>
+                        </Link>
+                        <DeleteUserButton id={user.id} name={fullName(user)} />
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             )}

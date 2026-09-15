@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
-import { ROLE_LEVEL } from "@/lib/roles";
+import { ROLE_LEVEL, isAgent } from "@/lib/roles";
 import { hasPermission, type PermissionCode } from "@/lib/permissions";
 import type { AuthUser } from "@/lib/types";
 
@@ -40,6 +40,17 @@ export async function requireDeveloper(): Promise<AuthUser> {
 export async function requireSuperAdmin(): Promise<AuthUser> {
   const user = await requireUser();
   if (user.role?.level !== ROLE_LEVEL.SUPER_ADMIN) redirect("/dashboard");
+  return user;
+}
+
+/**
+ * Redirects to /dashboard when the user isn't an Agent (role level 4, is_agent === true).
+ * Guards the /agent/** pages, which preview the /mobile/* API surface on the web ahead of
+ * the real mobile app.
+ */
+export async function requireAgent(): Promise<AuthUser> {
+  const user = await requireUser();
+  if (!isAgent(user)) redirect("/dashboard");
   return user;
 }
 
