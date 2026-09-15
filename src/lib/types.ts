@@ -60,6 +60,16 @@ export type Prospect = {
   agent?: ManagedUser | null;
 };
 
+// Mirrors GetDashboardStatsAction in ag_tontine. Scoped server-side to the
+// caller's agency/microfinance/platform depending on role; only reachable by
+// Développeur, Super Admin and Chef Agence (permission:view_agency_reports).
+export type DashboardStats = {
+  cotisations: { total: number; this_month: number };
+  loans: { active_amount: number; active_count: number; overdue_amount: number; overdue_count: number };
+  withdrawals: { total: number; this_month: number };
+  prospects: { pending: number; last_7_days: number; last_30_days: number };
+};
+
 export type Client = {
   id: string;
   agency_id: string;

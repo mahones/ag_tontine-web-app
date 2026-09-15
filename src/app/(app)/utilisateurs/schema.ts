@@ -48,3 +48,13 @@ export const createManagedUserFormSchema = z.object({
 });
 
 export type CreateManagedUserFormValues = z.infer<typeof createManagedUserFormSchema>;
+
+// Mirrors StoreMicrofinanceUserRequest in ag_tontine: a Super Admin registering
+// staff anywhere in their own microfinance — same as createManagedUserFormSchema
+// plus a required agency_id (the caller picks which of their microfinance's
+// agencies the new account belongs to).
+export const createMicrofinanceUserFormSchema = createManagedUserFormSchema.extend({
+  agency_id: z.string().trim().min(1, "L'agence est requise."),
+});
+
+export type CreateMicrofinanceUserFormValues = z.infer<typeof createMicrofinanceUserFormSchema>;

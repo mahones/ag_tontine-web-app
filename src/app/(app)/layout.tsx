@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PencilIcon } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { fullName } from "@/lib/roles";
 import { getNavItems } from "@/lib/nav";
@@ -21,13 +22,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between gap-3 border-b bg-background px-4 py-3">
-          <Link href="/profil" className="min-w-0 rounded-md outline-none hover:opacity-80 focus-visible:ring-3 focus-visible:ring-ring/50">
-            <p className="truncate text-sm font-medium">{fullName(user)}</p>
-            {user.role && (
-              <Badge variant="secondary" className="mt-0.5">
-                {user.role.name}
-              </Badge>
-            )}
+          <Link
+            href="/profil"
+            className="group flex min-w-0 items-center gap-1.5 rounded-md outline-none hover:opacity-80 focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium">{fullName(user)}</p>
+              {user.role && (
+                <Badge variant="secondary" className="mt-0.5">
+                  {user.role.name}
+                </Badge>
+              )}
+            </div>
+            <PencilIcon className="size-3.5 shrink-0 text-muted-foreground group-hover:text-foreground" />
           </Link>
           <LogoutButton />
         </header>

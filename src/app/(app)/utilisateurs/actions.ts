@@ -13,6 +13,8 @@ import {
   type ManagedUserFormValues,
   createManagedUserFormSchema,
   type CreateManagedUserFormValues,
+  createMicrofinanceUserFormSchema,
+  type CreateMicrofinanceUserFormValues,
 } from "./schema";
 
 export type UserActionResult =
@@ -89,11 +91,13 @@ export async function updateUserAction(id: string, values: UserFormValues): Prom
 }
 
 /**
- * Super Admin / Chef Agence registering staff for their own agency — this is the
- * platform's only account-creation path for those roles (no self-service sign-up
- * page). Always POSTs to /agency/users: CreateUserAction forces agency_id to the
- * caller's own agency for any non-developer caller regardless of level, so there's
- * no separate microfinance-wide create route (see StoreAgencyUserRequest).
+ * Chef Agence (and a Super Admin choosing to stay within their own agency)
+ * registering staff for that single agency — this is the platform's only
+ * account-creation path for those roles (no self-service sign-up page).
+ * Always POSTs to /agency/users: CreateUserAction forces agency_id to the
+ * caller's own agency for any non-developer caller (see StoreAgencyUserRequest).
+ * A Super Admin who needs to pick a different agency of their microfinance uses
+ * createMicrofinanceUserAction instead.
  */
 export async function createManagedUserAction(values: CreateManagedUserFormValues): Promise<UserActionResult> {
   await requirePermission("manage_users");
@@ -105,6 +109,36 @@ export async function createManagedUserAction(values: CreateManagedUserFormValue
 
   try {
     await apiFetch<ApiEnvelope<ManagedUser>>("/agency/users", {
+      method: "POST",
+      body: parsed.data,
+    });
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return { success: false, message: error.message, errors: error.errors };
+    }
+    return { success: false, message: "Une erreur est survenue." };
+  }
+
+  revalidatePath("/utilisateurs");
+  redirect("/utilisateurs");
+}
+
+/**
+ * Super Admin registering staff anywhere in their own microfinance (see
+ * StoreMicrofinanceUserRequest in ag_tontine for the agency/hierarchy checks).
+ */
+export async function createMicrofinanceUserAction(
+  values: CreateMicrofinanceUserFormValues,
+): Promise<UserActionResult> {
+  await requirePermission("manage_users");
+
+  const parsed = createMicrofinanceUserFormSchema.safeParse(values);
+  if (!parsed.success) {
+    return { success: false, message: "Champs invalides.", errors: parsed.error.flatten().fieldErrors };
+  }
+
+  try {
+    await apiFetch<ApiEnvelope<ManagedUser>>("/microfinance/users", {
       method: "POST",
       body: parsed.data,
     });

@@ -4,12 +4,14 @@ import { hasPermission } from "@/lib/permissions";
 import { isAgent, isChefAgence, isDeveloper, isMicrofinanceOwner } from "@/lib/roles";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardCard } from "./dashboard-card";
+import { DashboardStatCard } from "./dashboard-stat-card";
 import type {
   Agency,
   ApiEnvelope,
   Client,
   Configuration,
   Currency,
+  DashboardStats,
   Licence,
   ManagedUser,
   Microfinance,
@@ -32,9 +34,10 @@ export default async function DashboardPage() {
   const user = await requireUser();
 
   let cards: React.ReactNode = null;
+  let stats: DashboardStats | null = null;
 
   if (isDeveloper(user)) {
-    const [microfinances, agencies, users, clients, roles, currencies, configurations, licences] =
+    const [microfinances, agencies, users, clients, roles, currencies, configurations, licences, statsResponse] =
       await Promise.all([
         apiFetch<ApiEnvelope<Microfinance[]>>("/microfinances"),
         apiFetch<ApiEnvelope<Agency[]>>("/agencies"),
@@ -44,7 +47,9 @@ export default async function DashboardPage() {
         apiFetch<ApiEnvelope<Currency[]>>("/currencies"),
         apiFetch<ApiEnvelope<Configuration[]>>("/configurations"),
         apiFetch<ApiEnvelope<Licence[]>>("/licences"),
+        apiFetch<ApiEnvelope<DashboardStats>>("/dashboard/stats"),
       ]);
+    stats = statsResponse.data;
 
     cards = (
       <>
@@ -96,12 +101,14 @@ export default async function DashboardPage() {
       </>
     );
   } else if (isMicrofinanceOwner(user)) {
-    const [agencies, users, clients, prospects] = await Promise.all([
+    const [agencies, users, clients, prospects, statsResponse] = await Promise.all([
       apiFetch<ApiEnvelope<Agency[]>>("/microfinance/agencies"),
       apiFetch<ApiEnvelope<ManagedUser[]>>("/microfinance/users"),
       apiFetch<ApiEnvelope<Client[]>>(`/clients/agency/${user.agency_id}`),
       apiFetch<ApiEnvelope<Prospect[]>>(`/prospects/agency/${user.agency_id}`),
+      apiFetch<ApiEnvelope<DashboardStats>>("/dashboard/stats"),
     ]);
+    stats = statsResponse.data;
 
     cards = (
       <>
@@ -132,10 +139,12 @@ export default async function DashboardPage() {
       </>
     );
   } else if (isChefAgence(user)) {
-    const [users, clients] = await Promise.all([
+    const [users, clients, statsResponse] = await Promise.all([
       apiFetch<ApiEnvelope<ManagedUser[]>>("/agency/users"),
       apiFetch<ApiEnvelope<Client[]>>(`/clients/agency/${user.agency_id}`),
+      apiFetch<ApiEnvelope<DashboardStats>>("/dashboard/stats"),
     ]);
+    stats = statsResponse.data;
 
     cards = (
       <>
@@ -194,6 +203,36 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Tableau de bord</h1>
         <p className="text-sm text-muted-foreground">Bienvenue, {user.first_name}.</p>
       </div>
+
+      {stats && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <DashboardStatCard
+            label="Cotisations ce mois-ci"
+            value={stats.cotisations.this_month}
+            description={`Cumul : ${new Intl.NumberFormat("fr-FR").format(stats.cotisations.total)}`}
+          />
+          <DashboardStatCard
+            label="Prêts en cours"
+            value={stats.loans.active_count}
+            description={`Montant en cours : ${new Intl.NumberFormat("fr-FR").format(stats.loans.active_amount)}`}
+          />
+          <DashboardStatCard
+            label="Prêts en retard"
+            value={stats.loans.overdue_count}
+            description={`Montant estimé en retard : ${new Intl.NumberFormat("fr-FR").format(stats.loans.overdue_amount)}`}
+          />
+          <DashboardStatCard
+            label="Retraits ce mois-ci"
+            value={stats.withdrawals.this_month}
+            description={`Cumul : ${new Intl.NumberFormat("fr-FR").format(stats.withdrawals.total)}`}
+          />
+          <DashboardStatCard
+            label="Nouveaux prospects (7 jours)"
+            value={stats.prospects.last_7_days}
+            description={`${stats.prospects.pending} en attente de conversion — ${stats.prospects.last_30_days} sur 30 jours.`}
+          />
+        </div>
+      )}
 
       {cards ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{cards}</div>
