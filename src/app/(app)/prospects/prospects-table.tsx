@@ -13,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Prospect } from "@/lib/types";
+import { formatPersonName } from "@/lib/format-name";
 
 const STATUS_LABELS: Record<Prospect["status"], string> = {
   pending: "En attente",
@@ -63,12 +64,13 @@ export function ProspectsTable({ prospects }: { prospects: Prospect[] }) {
               <TableHead>Pièce d&apos;identité</TableHead>
               <TableHead>Cotisation prévue</TableHead>
               <TableHead>Statut</TableHead>
+              <TableHead>Assigné à l&apos;agent</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
                   Aucun prospect trouvé.
                 </TableCell>
               </TableRow>
@@ -76,7 +78,7 @@ export function ProspectsTable({ prospects }: { prospects: Prospect[] }) {
               filtered.map((prospect) => (
                 <TableRow key={prospect.id}>
                   <TableCell className="font-medium">
-                    {prospect.first_name} {prospect.last_name}
+                    {formatPersonName(prospect.first_name, prospect.last_name)}
                   </TableCell>
                   <TableCell>{prospect.phone}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{prospect.address}</TableCell>
@@ -86,6 +88,11 @@ export function ProspectsTable({ prospects }: { prospects: Prospect[] }) {
                     <Badge variant={STATUS_BADGE_VARIANT[prospect.status]}>
                       {STATUS_LABELS[prospect.status]}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {prospect.agent
+                      ? formatPersonName(prospect.agent.first_name, prospect.agent.last_name)
+                      : "—"}
                   </TableCell>
                 </TableRow>
               ))

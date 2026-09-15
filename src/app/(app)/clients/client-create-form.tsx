@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -16,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Prospect } from "@/lib/types";
+import { formatPersonName } from "@/lib/format-name";
 import { clientCreateFormSchema, type ClientCreateFormValues } from "./schema";
 import type { ClientActionResult } from "./actions";
 
@@ -35,6 +35,9 @@ export function ClientCreateForm({ prospects, onSubmit }: ClientCreateFormProps)
     defaultValues: emptyDefaults,
   });
 
+  const selectedProspectId = form.watch("prospect_id");
+  const selectedProspect = prospects.find((prospect) => prospect.id === selectedProspectId);
+
   async function handleSubmit(values: ClientCreateFormValues) {
     setPending(true);
     try {
@@ -42,7 +45,7 @@ export function ClientCreateForm({ prospects, onSubmit }: ClientCreateFormProps)
       if (!result.success) {
         if (result.errors) {
           for (const [field, messages] of Object.entries(result.errors)) {
-            if (field === "prospect_id" || field === "contribution_amount") {
+            if (field === "prospect_id") {
               form.setError(field, { message: messages[0] });
             }
           }
@@ -65,7 +68,7 @@ export function ClientCreateForm({ prospects, onSubmit }: ClientCreateFormProps)
             <Select
               items={prospects.map((prospect) => ({
                 value: prospect.id,
-                label: `${prospect.first_name} ${prospect.last_name} (${prospect.phone})`,
+                label: `${formatPersonName(prospect.first_name, prospect.last_name)} (${prospect.phone})`,
               }))}
               value={field.value || null}
               onValueChange={field.onChange}
@@ -80,7 +83,7 @@ export function ClientCreateForm({ prospects, onSubmit }: ClientCreateFormProps)
                 ) : (
                   prospects.map((prospect) => (
                     <SelectItem key={prospect.id} value={prospect.id}>
-                      {prospect.first_name} {prospect.last_name} ({prospect.phone})
+                      {formatPersonName(prospect.first_name, prospect.last_name)} ({prospect.phone})
                     </SelectItem>
                   ))
                 )}
@@ -93,20 +96,12 @@ export function ClientCreateForm({ prospects, onSubmit }: ClientCreateFormProps)
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="contribution_amount">Cotisation mensuelle</Label>
-        <Input
-          id="contribution_amount"
-          type="number"
-          min={200}
-          step="0.01"
-          disabled={pending}
-          {...form.register("contribution_amount", { valueAsNumber: true })}
-        />
-        {form.formState.errors.contribution_amount && (
-          <p className="text-sm text-destructive">{form.formState.errors.contribution_amount.message}</p>
-        )}
-      </div>
+      {selectedProspect && (
+        <p className="text-sm text-muted-foreground">
+          Cotisation mensuelle : <span className="font-medium">{selectedProspect.contribution_amount}</span> (reprise
+          telle que déclarée par le prospect, non modifiable ici)
+        </p>
+      )}
 
       <Button type="submit" disabled={pending}>
         {pending && <Loader2Icon className="animate-spin" />}

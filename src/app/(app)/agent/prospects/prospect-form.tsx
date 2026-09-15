@@ -98,7 +98,7 @@ export function ProspectForm({
         <Input
           id="contribution_amount"
           type="number"
-          min={0}
+          min={200}
           step="0.01"
           disabled={pending}
           {...form.register("contribution_amount", { valueAsNumber: true })}

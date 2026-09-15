@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireAgent } from "@/lib/auth";
 import { apiFetch, ApiError } from "@/lib/api";
 import type { ApiEnvelope, Prospect } from "@/lib/types";
+import { formatPersonName } from "@/lib/format-name";
 import { ProspectForm } from "../prospect-form";
 import { updateProspectAction } from "../actions";
 
@@ -28,7 +29,7 @@ export default async function EditAgentProspectPage(props: PageProps<"/agent/pro
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">
-          {prospect.first_name} {prospect.last_name}
+          {formatPersonName(prospect.first_name, prospect.last_name)}
         </h1>
       </div>
 

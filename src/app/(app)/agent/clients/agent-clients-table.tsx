@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Client } from "@/lib/types";
+import { formatPersonName } from "@/lib/format-name";
 
 /**
  * No row link to /clients/[id]: ClientPolicy::view caps at role level <= 3, so an Agent
@@ -63,7 +64,7 @@ export function AgentClientsTable({ clients }: { clients: Client[] }) {
               filtered.map((client) => (
                 <TableRow key={client.id}>
                   <TableCell className="font-medium">
-                    {client.first_name} {client.last_name}
+                    {formatPersonName(client.first_name, client.last_name)}
                   </TableCell>
                   <TableCell>{client.phone}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{client.address}</TableCell>

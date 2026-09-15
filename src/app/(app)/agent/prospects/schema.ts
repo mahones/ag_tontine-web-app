@@ -9,9 +9,11 @@ export const prospectFormSchema = z.object({
   phone: z.string().trim().min(1, "Le téléphone est requis."),
   address: z.string().trim().min(1, "L'adresse est requise."),
   id_piece: z.string().trim().optional(),
+  // Same floor as StoreProspectRequest/StoreNotebookRequest: this amount becomes the
+  // notebook's contribution_amount unchanged once the prospect is converted to a client.
   contribution_amount: z
     .number({ error: "La cotisation prévue doit être un nombre." })
-    .min(0, "La cotisation prévue doit être positive ou nulle."),
+    .min(200, "La cotisation prévue doit être d'au moins 200."),
 });
 
 export type ProspectFormValues = z.infer<typeof prospectFormSchema>;

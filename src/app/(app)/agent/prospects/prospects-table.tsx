@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Prospect } from "@/lib/types";
+import { formatPersonName } from "@/lib/format-name";
 
 const STATUS_LABELS: Record<Prospect["status"], string> = {
   pending: "En attente",
@@ -78,7 +79,7 @@ export function AgentProspectsTable({ prospects }: { prospects: Prospect[] }) {
               filtered.map((prospect) => (
                 <TableRow key={prospect.id}>
                   <TableCell className="font-medium">
-                    {prospect.first_name} {prospect.last_name}
+                    {formatPersonName(prospect.first_name, prospect.last_name)}
                   </TableCell>
                   <TableCell>{prospect.phone}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{prospect.address}</TableCell>
@@ -96,7 +97,7 @@ export function AgentProspectsTable({ prospects }: { prospects: Prospect[] }) {
                       >
                         <PencilIcon />
                         <span className="sr-only">
-                          Modifier {prospect.first_name} {prospect.last_name}
+                          Modifier {formatPersonName(prospect.first_name, prospect.last_name)}
                         </span>
                       </Link>
                     </div>

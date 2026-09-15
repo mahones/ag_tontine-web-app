@@ -27,7 +27,6 @@ export async function createClientAction(values: ClientCreateFormValues): Promis
   try {
     await apiFetch<ApiEnvelope<Client>>(`/clients/${parsed.data.prospect_id}`, {
       method: "POST",
-      body: { contribution_amount: parsed.data.contribution_amount },
     });
   } catch (error) {
     if (error instanceof ApiError) {

@@ -1,15 +1,13 @@
 import { z } from "zod";
 
-// Mirrors StoreClientRequest in ag_tontine: the only field actually submitted is
-// contribution_amount (required, numeric, min 200) — identity fields (name/phone/address)
-// are copied server-side from the chosen Prospect (CreateClientAction), not user-entered.
-// prospect_id isn't part of the request body — it's the {prospect} route segment — but it's
-// a real form field here (the prospect picker), so it's validated alongside the amount.
+// Mirrors StoreClientRequest in ag_tontine: it takes no body fields anymore — identity
+// (name/phone/address) AND contribution_amount are both copied server-side from the chosen
+// Prospect (CreateClientAction), never re-entered here (a client can't be created for less —
+// or more — than the "mise" the prospect already pledged). prospect_id isn't part of the
+// request body — it's the {prospect} route segment — but it's a real form field here (the
+// prospect picker), so it's still validated.
 export const clientCreateFormSchema = z.object({
   prospect_id: z.string().trim().min(1, "Le prospect est requis."),
-  contribution_amount: z
-    .number({ error: "La cotisation doit être un nombre." })
-    .min(200, "La cotisation minimale est 200."),
 });
 
 export type ClientCreateFormValues = z.infer<typeof clientCreateFormSchema>;

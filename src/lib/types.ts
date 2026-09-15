@@ -57,6 +57,7 @@ export type Prospect = {
   id_piece: string;
   contribution_amount: string;
   status: "pending" | "approved" | "rejected" | "converted";
+  agent?: ManagedUser | null;
 };
 
 export type Client = {
@@ -67,6 +68,7 @@ export type Client = {
   last_name: string;
   phone: string;
   address: string;
+  agents?: ManagedUser[];
   created_at: string;
   updated_at: string;
 };
