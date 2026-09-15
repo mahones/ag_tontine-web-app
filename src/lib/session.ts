@@ -38,3 +38,10 @@ export async function deleteSession(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
 }
+
+/** Patches the cached `user` in the session cookie (e.g. after a profile edit) without touching the token. */
+export async function updateSessionUser(user: AuthUser): Promise<void> {
+  const session = await getSession();
+  if (!session) return;
+  await createSession(session.token, user);
+}

@@ -21,12 +21,30 @@ import { ToggleUserActifButton } from "./toggle-user-actif-button";
 
 export function UtilisateursTable({
   users,
-  actionsEnabled = true,
+  canManage = true,
+  canEdit = canManage,
+  callerRoleLevel = null,
 }: {
   users: ManagedUser[];
-  actionsEnabled?: boolean;
+  /** Toggle-active and delete — Développeur only. */
+  canManage?: boolean;
+  /** Edit link, shown per row only for users the caller outranks (see rowIsEditable). */
+  canEdit?: boolean;
+  callerRoleLevel?: number | null;
 }) {
   const [search, setSearch] = useState("");
+
+  // A Super Admin/Chef Agence can only edit staff with a strictly lower authority
+  // (higher role level) than their own — mirrors the hierarchy check UserController
+  // enforces server-side. Développeur (canManage) bypasses this entirely.
+  function rowIsEditable(user: ManagedUser): boolean {
+    if (!canEdit) return false;
+    if (canManage) return true;
+    if (callerRoleLevel === null || user.role == null) return false;
+    return callerRoleLevel < user.role.level;
+  }
+
+  const actionsEnabled = canManage || canEdit;
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -87,15 +105,17 @@ export function UtilisateursTable({
                   {actionsEnabled && (
                     <TableCell>
                       <div className="flex justify-end gap-1.5">
-                        <ToggleUserActifButton id={user.id} isActive={user.is_active} />
-                        <Link
-                          href={`/utilisateurs/${user.id}`}
-                          className={buttonVariants({ variant: "outline", size: "icon-sm" })}
-                        >
-                          <PencilIcon />
-                          <span className="sr-only">Modifier {fullName(user)}</span>
-                        </Link>
-                        <DeleteUserButton id={user.id} name={fullName(user)} />
+                        {canManage && <ToggleUserActifButton id={user.id} isActive={user.is_active} />}
+                        {rowIsEditable(user) && (
+                          <Link
+                            href={`/utilisateurs/${user.id}`}
+                            className={buttonVariants({ variant: "outline", size: "icon-sm" })}
+                          >
+                            <PencilIcon />
+                            <span className="sr-only">Modifier {fullName(user)}</span>
+                          </Link>
+                        )}
+                        {canManage && <DeleteUserButton id={user.id} name={fullName(user)} />}
                       </div>
                     </TableCell>
                   )}

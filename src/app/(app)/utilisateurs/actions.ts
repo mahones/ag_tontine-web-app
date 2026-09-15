@@ -3,9 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { apiFetch, ApiError } from "@/lib/api";
-import { requireDeveloper } from "@/lib/auth";
+import { requireDeveloper, requirePermission } from "@/lib/auth";
+import { isMicrofinanceOwner } from "@/lib/roles";
 import type { ApiEnvelope, ManagedUser } from "@/lib/types";
-import { userFormSchema, type UserFormValues } from "./schema";
+import {
+  userFormSchema,
+  type UserFormValues,
+  managedUserFormSchema,
+  type ManagedUserFormValues,
+  createManagedUserFormSchema,
+  type CreateManagedUserFormValues,
+} from "./schema";
 
 export type UserActionResult =
   | { success: true }
@@ -67,6 +75,68 @@ export async function updateUserAction(id: string, values: UserFormValues): Prom
     await apiFetch<ApiEnvelope<ManagedUser>>(`/users/${id}`, {
       method: "PUT",
       body: toPayload(parsed.data, { includePassword: parsed.data.password !== "" }),
+    });
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return { success: false, message: error.message, errors: error.errors };
+    }
+    return { success: false, message: "Une erreur est survenue." };
+  }
+
+  revalidatePath("/utilisateurs");
+  revalidatePath(`/utilisateurs/${id}`);
+  redirect("/utilisateurs");
+}
+
+/**
+ * Super Admin / Chef Agence registering staff for their own agency — this is the
+ * platform's only account-creation path for those roles (no self-service sign-up
+ * page). Always POSTs to /agency/users: CreateUserAction forces agency_id to the
+ * caller's own agency for any non-developer caller regardless of level, so there's
+ * no separate microfinance-wide create route (see StoreAgencyUserRequest).
+ */
+export async function createManagedUserAction(values: CreateManagedUserFormValues): Promise<UserActionResult> {
+  await requirePermission("manage_users");
+
+  const parsed = createManagedUserFormSchema.safeParse(values);
+  if (!parsed.success) {
+    return { success: false, message: "Champs invalides.", errors: parsed.error.flatten().fieldErrors };
+  }
+
+  try {
+    await apiFetch<ApiEnvelope<ManagedUser>>("/agency/users", {
+      method: "POST",
+      body: parsed.data,
+    });
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return { success: false, message: error.message, errors: error.errors };
+    }
+    return { success: false, message: "Une erreur est survenue." };
+  }
+
+  revalidatePath("/utilisateurs");
+  redirect("/utilisateurs");
+}
+
+/**
+ * Super Admin / Chef Agence editing one of their own staff (see UpdateManagedUserRequest
+ * in ag_tontine for the exact field set and hierarchy/scope rules the backend enforces).
+ */
+export async function updateManagedUserAction(id: string, values: ManagedUserFormValues): Promise<UserActionResult> {
+  const user = await requirePermission("manage_users");
+
+  const parsed = managedUserFormSchema.safeParse(values);
+  if (!parsed.success) {
+    return { success: false, message: "Champs invalides.", errors: parsed.error.flatten().fieldErrors };
+  }
+
+  const endpoint = isMicrofinanceOwner(user) ? `/microfinance/users/${id}` : `/agency/users/${id}`;
+
+  try {
+    await apiFetch<ApiEnvelope<ManagedUser>>(endpoint, {
+      method: "PUT",
+      body: parsed.data,
     });
   } catch (error) {
     if (error instanceof ApiError) {

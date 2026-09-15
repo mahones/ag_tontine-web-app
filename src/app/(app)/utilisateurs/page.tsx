@@ -16,9 +16,10 @@ export const metadata = {
 /**
  * Reserved for Développeur (all users), Super Admin (own microfinance, via
  * /microfinance/users) and Chef Agence (own agency, via /agency/users) — the three roles
- * carrying the manage_users permission. Only Développeur gets create/edit/toggle/delete:
- * those routes stay dev-only server-side (see actions.ts), so the UI hides them for everyone
- * else rather than surface a link that would 403.
+ * carrying the manage_users permission. Développeur gets create/edit/toggle/delete on
+ * anyone; Super Admin/Chef Agence can edit (name/phone/email/is_agent only) staff who
+ * outrank them numerically lower — the table filters that per row, the backend enforces
+ * it regardless. Toggle/delete stay dev-only server-side (see actions.ts).
  */
 export default async function UtilisateursPage() {
   const user = await requireUser();
@@ -41,7 +42,7 @@ export default async function UtilisateursPage() {
                 : "Comptes de votre agence."}
           </p>
         </div>
-        {dev && (
+        {(dev || hasPermission(user, "manage_users")) && (
           <Link href="/utilisateurs/nouveau" className={buttonVariants()}>
             <PlusIcon />
             Nouvel utilisateur
@@ -49,7 +50,7 @@ export default async function UtilisateursPage() {
         )}
       </div>
 
-      <UtilisateursTable users={users} actionsEnabled={dev} />
+      <UtilisateursTable users={users} canManage={dev} canEdit={dev || hasPermission(user, "manage_users")} callerRoleLevel={user.role?.level ?? null} />
     </div>
   );
 }

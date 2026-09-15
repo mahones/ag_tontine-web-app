@@ -20,3 +20,31 @@ export const userFormSchema = z.object({
 });
 
 export type UserFormValues = z.infer<typeof userFormSchema>;
+
+// Mirrors UpdateManagedUserRequest in ag_tontine: the safe subset a Super Admin /
+// Chef Agence may edit on their own staff — no role_id, agency_id, is_active or
+// password (those stay developer-only, or go through the dedicated reset-password flow).
+export const managedUserFormSchema = z.object({
+  first_name: z.string().trim().min(1, "Le prénom est requis.").max(255, "255 caractères maximum."),
+  last_name: z.string().trim().min(1, "Le nom est requis.").max(255, "255 caractères maximum."),
+  phone: z.string().trim().min(1, "Le téléphone est requis."),
+  email: z.string().trim().min(1, "L'email est requis.").email("Adresse email invalide."),
+  is_agent: z.boolean(),
+});
+
+export type ManagedUserFormValues = z.infer<typeof managedUserFormSchema>;
+
+// Mirrors StoreAgencyUserRequest in ag_tontine: registering staff for the caller's
+// own agency. No agency_id (forced server-side to the caller's own); role_id is
+// required and must be one of the roles /agency/roles returns for this caller.
+export const createManagedUserFormSchema = z.object({
+  role_id: z.string().trim().min(1, "Le rôle est requis."),
+  first_name: z.string().trim().min(1, "Le prénom est requis.").max(255, "255 caractères maximum."),
+  last_name: z.string().trim().min(1, "Le nom est requis.").max(255, "255 caractères maximum."),
+  phone: z.string().trim().min(1, "Le téléphone est requis."),
+  email: z.string().trim().min(1, "L'email est requis.").email("Adresse email invalide."),
+  password: z.string().min(8, "8 caractères minimum."),
+  is_agent: z.boolean(),
+});
+
+export type CreateManagedUserFormValues = z.infer<typeof createManagedUserFormSchema>;
