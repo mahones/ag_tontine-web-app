@@ -62,7 +62,7 @@ export default async function ContributionAmountsPage(
 
       <div>
         <h2 className="mb-3 text-lg font-medium tracking-tight">Historique ({history.length})</h2>
-        <div className="rounded-lg border">
+        <div className="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>

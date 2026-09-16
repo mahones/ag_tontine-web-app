@@ -5,7 +5,7 @@ import { logoutAction } from "@/lib/auth-actions";
 export function LogoutButton() {
   return (
     <form action={logoutAction}>
-      <Button type="submit" variant="ghost" size="sm">
+      <Button type="submit" variant="destructive" size="sm">
         <LogOutIcon />
         Déconnexion
       </Button>

@@ -80,6 +80,13 @@ export type DashboardStats = {
   prospects: { pending: number; last_7_days: number; last_30_days: number };
 };
 
+/** Mirrors GetMonthlyStatsAction — 12 entries per series, January first. */
+export type DashboardMonthlyStats = {
+  year: number;
+  cotisations: number[];
+  loans: number[];
+};
+
 export type Client = {
   id: string;
   agency_id: string;

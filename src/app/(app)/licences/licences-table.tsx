@@ -22,9 +22,9 @@ import { LICENCE_STATUS_LABELS } from "./schema";
 import { CopyLicenceKeyButton } from "./copy-licence-key-button";
 import { DeleteLicenceButton } from "./delete-licence-button";
 
-const STATUS_BADGE_VARIANT: Record<Licence["status"], "default" | "secondary" | "destructive"> = {
-  active: "default",
-  expired: "secondary",
+const STATUS_BADGE_VARIANT: Record<Licence["status"], "success" | "secondary" | "destructive"> = {
+  active: "success",
+  expired: "destructive",
   revoked: "destructive",
 };
 
@@ -59,7 +59,7 @@ export function LicencesTable({
         />
       </div>
 
-      <div className="rounded-lg border">
+      <div className="overflow-hidden rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>

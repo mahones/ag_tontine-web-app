@@ -64,7 +64,7 @@ export function UtilisateursTable({
         />
       </div>
 
-      <div className="rounded-lg border">
+      <div className="overflow-hidden rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -94,7 +94,7 @@ export function UtilisateursTable({
                   <TableCell>{user.role?.name ?? "—"}</TableCell>
                   <TableCell>{user.agency?.name ?? "—"}</TableCell>
                   <TableCell>
-                    <Badge variant={user.is_active ? "default" : "secondary"}>
+                    <Badge variant={user.is_active ? "success" : "secondary"}>
                       {user.is_active ? "Actif" : "Inactif"}
                     </Badge>
                   </TableCell>

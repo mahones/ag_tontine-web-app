@@ -43,7 +43,7 @@ export function AgentClientsTable({
         />
       </div>
 
-      <div className="rounded-lg border">
+      <div className="overflow-hidden rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>

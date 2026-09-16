@@ -111,7 +111,7 @@ export default async function AgencyDetailPage(
           </h2>
           <div className="flex flex-wrap gap-2">
             {Object.entries(notebooksByStatus).map(([status, count]) => (
-              <Badge key={status} variant={status === "active" ? "default" : "secondary"}>
+              <Badge key={status} variant={status === "active" ? "success" : status === "closed" ? "destructive" : "secondary"}>
                 {NOTEBOOK_STATUS_LABELS[status as Notebook["status"]] ?? status} : {count}
               </Badge>
             ))}

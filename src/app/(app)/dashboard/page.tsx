@@ -15,6 +15,7 @@ import { hasPermission } from "@/lib/permissions";
 import { isAgent, isChefAgence, isDeveloper, isMicrofinanceOwner } from "@/lib/roles";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardCard } from "./dashboard-card";
+import { DashboardMonthlyChart } from "./dashboard-monthly-chart";
 import { DashboardStatsGrid } from "./dashboard-stats-grid";
 import type {
   Agency,
@@ -22,6 +23,7 @@ import type {
   Client,
   Configuration,
   Currency,
+  DashboardMonthlyStats,
   DashboardStats,
   Licence,
   ManagedUser,
@@ -41,14 +43,18 @@ export const metadata = {
  * of the /mobile/* routes). Cards link to the existing list pages rather than duplicating
  * them here (they already enforce the same scoping server-side).
  */
-export default async function DashboardPage() {
+export default async function DashboardPage(props: PageProps<"/dashboard">) {
   const user = await requireUser();
+  const searchParams = await props.searchParams;
+  const yearParam = Array.isArray(searchParams.year) ? searchParams.year[0] : searchParams.year;
+  const year = Number(yearParam) || new Date().getFullYear();
 
   let cards: React.ReactNode = null;
   let stats: DashboardStats | null = null;
+  let monthlyStats: DashboardMonthlyStats | null = null;
 
   if (isDeveloper(user)) {
-    const [microfinances, agencies, users, roles, currencies, configurations, licences, statsResponse] =
+    const [microfinances, agencies, users, roles, currencies, configurations, licences, statsResponse, monthlyResponse] =
       await Promise.all([
         apiFetch<ApiEnvelope<Microfinance[]>>("/microfinances"),
         apiFetch<ApiEnvelope<Agency[]>>("/agencies"),
@@ -58,8 +64,10 @@ export default async function DashboardPage() {
         apiFetch<ApiEnvelope<Configuration[]>>("/configurations"),
         apiFetch<ApiEnvelope<Licence[]>>("/licences"),
         apiFetch<ApiEnvelope<DashboardStats>>("/dashboard/stats"),
+        apiFetch<ApiEnvelope<DashboardMonthlyStats>>(`/dashboard/monthly-stats?year=${year}`),
       ]);
     stats = statsResponse.data;
+    monthlyStats = monthlyResponse.data;
 
     cards = (
       <>
@@ -120,14 +128,16 @@ export default async function DashboardPage() {
       </>
     );
   } else if (isMicrofinanceOwner(user)) {
-    const [agencies, users, clients, prospects, statsResponse] = await Promise.all([
+    const [agencies, users, clients, prospects, statsResponse, monthlyResponse] = await Promise.all([
       apiFetch<ApiEnvelope<Agency[]>>("/microfinance/agencies"),
       apiFetch<ApiEnvelope<ManagedUser[]>>("/microfinance/users"),
       apiFetch<ApiEnvelope<Client[]>>(`/clients/agency/${user.agency_id}`),
       apiFetch<ApiEnvelope<Prospect[]>>(`/prospects/agency/${user.agency_id}`),
       apiFetch<ApiEnvelope<DashboardStats>>("/dashboard/stats"),
+      apiFetch<ApiEnvelope<DashboardMonthlyStats>>(`/dashboard/monthly-stats?year=${year}`),
     ]);
     stats = statsResponse.data;
+    monthlyStats = monthlyResponse.data;
 
     cards = (
       <>
@@ -162,12 +172,14 @@ export default async function DashboardPage() {
       </>
     );
   } else if (isChefAgence(user)) {
-    const [users, clients, statsResponse] = await Promise.all([
+    const [users, clients, statsResponse, monthlyResponse] = await Promise.all([
       apiFetch<ApiEnvelope<ManagedUser[]>>("/agency/users"),
       apiFetch<ApiEnvelope<Client[]>>(`/clients/agency/${user.agency_id}`),
       apiFetch<ApiEnvelope<DashboardStats>>("/dashboard/stats"),
+      apiFetch<ApiEnvelope<DashboardMonthlyStats>>(`/dashboard/monthly-stats?year=${year}`),
     ]);
     stats = statsResponse.data;
+    monthlyStats = monthlyResponse.data;
 
     cards = (
       <>
@@ -236,6 +248,7 @@ export default async function DashboardPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {stats && <DashboardStatsGrid stats={stats} />}
           {cards}
+          {monthlyStats && <DashboardMonthlyChart stats={monthlyStats} />}
         </div>
       ) : (
         <Card className="max-w-md">

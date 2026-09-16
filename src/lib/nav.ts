@@ -2,9 +2,22 @@ import type { AuthUser } from "@/lib/types";
 import { isAgent, isDeveloper, isMicrofinanceOwner } from "@/lib/roles";
 import { hasPermission } from "@/lib/permissions";
 
+export type NavIcon =
+  | "dashboard"
+  | "microfinances"
+  | "roles"
+  | "devises"
+  | "configurations"
+  | "licences"
+  | "agences"
+  | "prospects"
+  | "utilisateurs"
+  | "clients";
+
 export type NavItem = {
   href: string;
   label: string;
+  icon: NavIcon;
 };
 
 /**
@@ -14,19 +27,19 @@ export type NavItem = {
  * (level 4) mobile-route preview (/agent/**) are built so far.
  */
 export function getNavItems(user: AuthUser): NavItem[] {
-  const items: NavItem[] = [{ href: "/dashboard", label: "Tableau de bord" }];
+  const items: NavItem[] = [{ href: "/dashboard", label: "Tableau de bord", icon: "dashboard" }];
 
   if (isDeveloper(user)) {
-    items.push({ href: "/microfinances", label: "Microfinances" });
-    items.push({ href: "/roles", label: "Rôles" });
-    items.push({ href: "/devises", label: "Devises" });
-    items.push({ href: "/configurations", label: "Configurations" });
-    items.push({ href: "/licences", label: "Licences" });
+    items.push({ href: "/microfinances", label: "Microfinances", icon: "microfinances" });
+    items.push({ href: "/roles", label: "Rôles", icon: "roles" });
+    items.push({ href: "/devises", label: "Devises", icon: "devises" });
+    items.push({ href: "/configurations", label: "Configurations", icon: "configurations" });
+    items.push({ href: "/licences", label: "Licences", icon: "licences" });
   }
 
   if (isMicrofinanceOwner(user)) {
-    items.push({ href: "/agences", label: "Agences" });
-    items.push({ href: "/prospects", label: "Prospects" });
+    items.push({ href: "/agences", label: "Agences", icon: "agences" });
+    items.push({ href: "/prospects", label: "Prospects", icon: "prospects" });
   }
 
   // manage_users: Super Admin (microfinance-wide, create/edit) and Chef Agence (own
@@ -35,19 +48,19 @@ export function getNavItems(user: AuthUser): NavItem[] {
   // microfinance's agencies instead (see /microfinances). Excluded explicitly here since
   // hasPermission() always returns true for a Développeur (level 0 bypasses every check).
   if (!isDeveloper(user) && (hasPermission(user, "manage_users") || hasPermission(user, "view_agency_users"))) {
-    items.push({ href: "/utilisateurs", label: "Utilisateurs" });
+    items.push({ href: "/utilisateurs", label: "Utilisateurs", icon: "utilisateurs" });
   }
 
   // Développeur has no direct clients list either (same reasoning as Utilisateurs above):
   // they reach a microfinance's clients by drilling into its agencies instead, where the
   // existing client detail page (/clients/{id}) is still used to view one.
   if (!isDeveloper(user) && hasPermission(user, "view_clients") && !isAgent(user)) {
-    items.push({ href: "/clients", label: "Clients" });
+    items.push({ href: "/clients", label: "Clients", icon: "clients" });
   }
 
   if (isAgent(user)) {
-    items.push({ href: "/agent/prospects", label: "Mes prospects" });
-    items.push({ href: "/agent/clients", label: "Mes clients" });
+    items.push({ href: "/agent/prospects", label: "Mes prospects", icon: "prospects" });
+    items.push({ href: "/agent/clients", label: "Mes clients", icon: "clients" });
   }
 
   return items;

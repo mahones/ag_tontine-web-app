@@ -110,7 +110,7 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
           )}
         </div>
 
-        <div className="rounded-lg border">
+        <div className="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -135,7 +135,11 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
                     <TableCell>{notebook.year}</TableCell>
                     <TableCell>{notebook.contribution_amount}</TableCell>
                     <TableCell>
-                      <Badge variant={notebook.status === "active" ? "default" : "secondary"}>
+                      <Badge
+                        variant={
+                          notebook.status === "active" ? "success" : notebook.status === "closed" ? "destructive" : "secondary"
+                        }
+                      >
                         {NOTEBOOK_STATUS_LABELS[notebook.status]}
                       </Badge>
                     </TableCell>

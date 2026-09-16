@@ -64,7 +64,7 @@ export default async function LoansPage(props: PageProps<"/clients/[id]/carnets/
 
       <div>
         <h2 className="mb-3 text-lg font-medium tracking-tight">Historique ({loans.length})</h2>
-        <div className="rounded-lg border">
+        <div className="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -96,7 +96,7 @@ export default async function LoansPage(props: PageProps<"/clients/[id]/carnets/
                     <TableCell>{loan.file_fees}</TableCell>
                     <TableCell>{loan.agency_gain}</TableCell>
                     <TableCell>
-                      <Badge variant={loan.status === "active" ? "default" : "secondary"}>
+                      <Badge variant={loan.status === "active" ? "success" : "secondary"}>
                         {LOAN_STATUS_LABELS[loan.status]}
                       </Badge>
                     </TableCell>

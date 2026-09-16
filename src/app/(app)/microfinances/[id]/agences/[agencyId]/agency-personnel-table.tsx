@@ -45,7 +45,7 @@ export function AgencyPersonnelTable({
         />
       </div>
 
-      <div className="rounded-lg border">
+      <div className="overflow-hidden rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -73,7 +73,7 @@ export function AgencyPersonnelTable({
                     <div>{member.email}</div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={member.is_active ? "default" : "secondary"}>
+                    <Badge variant={member.is_active ? "success" : "secondary"}>
                       {member.is_active ? "Actif" : "Inactif"}
                     </Badge>
                   </TableCell>

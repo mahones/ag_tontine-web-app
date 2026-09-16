@@ -86,7 +86,7 @@ export default async function WithdrawalsPage(props: PageProps<"/clients/[id]/ca
 
       <div>
         <h2 className="mb-3 text-lg font-medium tracking-tight">Historique ({withdrawals.length})</h2>
-        <div className="rounded-lg border">
+        <div className="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>

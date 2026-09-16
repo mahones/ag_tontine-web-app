@@ -6,8 +6,7 @@ import { fullName } from "@/lib/roles";
 import { getNavItems } from "@/lib/nav";
 import { AppSidebarNav } from "@/components/app-sidebar-nav";
 import { LogoutButton } from "@/components/logout-button";
-import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { buttonVariants } from "@/components/ui/button";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
@@ -15,36 +14,26 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-svh flex-col md:flex-row">
-      <aside className="border-b bg-muted/30 md:w-56 md:shrink-0 md:border-r md:border-b-0">
+      <aside className="flex flex-col border-b bg-[#FDF0E8] md:fixed md:inset-y-0 md:left-0 md:h-svh md:w-56 md:border-r md:border-b-0">
         <div className="hidden px-4 py-4 md:block">
           <Image src="/assets/e-tontine-logo-full.png" alt="E-Tontine" width={476} height={136} className="h-11 w-auto" priority />
         </div>
-        <AppSidebarNav items={navItems} />
+        <div className="md:min-h-0 md:flex-1 md:overflow-y-auto">
+          <AppSidebarNav items={navItems} />
+        </div>
+
+        <div className="border-t px-4 py-3">
+          <p className="truncate text-sm font-medium">{fullName(user)}</p>
+          {user.role && <p className="mt-0.5 truncate text-xs text-muted-foreground">{user.role.name}</p>}
+          <Link href="/profil" className={buttonVariants({ size: "sm", className: "mt-3 w-full justify-start gap-2" })}>
+            <PencilIcon />
+            Modifier
+          </Link>
+        </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-between gap-3 border-b bg-background px-4 py-3">
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Link
-                  href="/profil"
-                  className="group flex min-w-0 items-center gap-1.5 rounded-md outline-none hover:opacity-80 focus-visible:ring-3 focus-visible:ring-ring/50"
-                />
-              }
-            >
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">{fullName(user)}</p>
-                {user.role && (
-                  <Badge variant="secondary" className="mt-0.5">
-                    {user.role.name}
-                  </Badge>
-                )}
-              </div>
-              <PencilIcon className="size-3.5 shrink-0 text-muted-foreground group-hover:text-foreground" />
-            </TooltipTrigger>
-            <TooltipContent>Modifier mon profil</TooltipContent>
-          </Tooltip>
+      <div className="flex min-w-0 flex-1 flex-col md:ml-56">
+        <header className="flex items-center justify-end gap-3 border-b bg-background px-4 py-3">
           <LogoutButton />
         </header>
 
