@@ -6,6 +6,7 @@ import { EyeIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -78,13 +79,20 @@ export function MicrofinanceAgencesTable({
                   <TableCell>{agency.is_headquarters && <Badge variant="default">Siège</Badge>}</TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1.5">
-                      <Link
-                        href={`/microfinances/${microfinanceId}/agences/${agency.id}`}
-                        className={buttonVariants({ variant: "outline", size: "icon-sm" })}
-                      >
-                        <EyeIcon />
-                        <span className="sr-only">Voir le détail de {agency.name}</span>
-                      </Link>
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <Link
+                              href={`/microfinances/${microfinanceId}/agences/${agency.id}`}
+                              className={buttonVariants({ variant: "outline", size: "icon-sm" })}
+                            />
+                          }
+                        >
+                          <EyeIcon />
+                          <span className="sr-only">Voir le détail de {agency.name}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>Voir</TooltipContent>
+                      </Tooltip>
                     </div>
                   </TableCell>
                 </TableRow>

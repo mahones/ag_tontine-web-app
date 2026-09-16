@@ -5,6 +5,7 @@ import { EyeIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -21,12 +22,16 @@ export function ClientsTable({
   clients,
   meta,
   initialSearch = "",
+  paramNames,
 }: {
   clients: Client[];
   meta: PaginationMeta;
   initialSearch?: string;
+  /** Namespaces the URL's page/search params — needed when another paginated
+   * list shares the same page (e.g. the agency detail page's Personnel table). */
+  paramNames?: { page?: string; search?: string };
 }) {
-  const { search, setSearch, setPage } = useListQuery(initialSearch);
+  const { search, setSearch, setPage } = useListQuery(initialSearch, paramNames);
 
   return (
     <div className="space-y-3">
@@ -67,15 +72,22 @@ export function ClientsTable({
                   <TableCell className="text-sm text-muted-foreground">{client.address}</TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1.5">
-                      <Link
-                        href={`/clients/${client.id}`}
-                        className={buttonVariants({ variant: "outline", size: "icon-sm" })}
-                      >
-                        <EyeIcon />
-                        <span className="sr-only">
-                          Voir {formatPersonName(client.first_name, client.last_name)}
-                        </span>
-                      </Link>
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <Link
+                              href={`/clients/${client.id}`}
+                              className={buttonVariants({ variant: "outline", size: "icon-sm" })}
+                            />
+                          }
+                        >
+                          <EyeIcon />
+                          <span className="sr-only">
+                            Voir {formatPersonName(client.first_name, client.last_name)}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>Voir</TooltipContent>
+                      </Tooltip>
                     </div>
                   </TableCell>
                 </TableRow>

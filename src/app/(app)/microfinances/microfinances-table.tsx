@@ -5,6 +5,7 @@ import { BuildingIcon, PencilIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -77,20 +78,34 @@ export function MicrofinancesTable({
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1.5">
-                      <Link
-                        href={`/microfinances/${microfinance.id}/agences`}
-                        className={buttonVariants({ variant: "outline", size: "icon-sm" })}
-                      >
-                        <BuildingIcon />
-                        <span className="sr-only">Voir les agences de {microfinance.name}</span>
-                      </Link>
-                      <Link
-                        href={`/microfinances/${microfinance.id}`}
-                        className={buttonVariants({ variant: "outline", size: "icon-sm" })}
-                      >
-                        <PencilIcon />
-                        <span className="sr-only">Modifier {microfinance.name}</span>
-                      </Link>
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <Link
+                              href={`/microfinances/${microfinance.id}/agences`}
+                              className={buttonVariants({ variant: "outline", size: "icon-sm" })}
+                            />
+                          }
+                        >
+                          <BuildingIcon />
+                          <span className="sr-only">Voir les agences de {microfinance.name}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>Agences</TooltipContent>
+                      </Tooltip>
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <Link
+                              href={`/microfinances/${microfinance.id}`}
+                              className={buttonVariants({ variant: "outline", size: "icon-sm" })}
+                            />
+                          }
+                        >
+                          <PencilIcon />
+                          <span className="sr-only">Modifier {microfinance.name}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>Modifier</TooltipContent>
+                      </Tooltip>
                       <DeleteMicrofinanceButton id={microfinance.id} name={microfinance.name} />
                     </div>
                   </TableCell>

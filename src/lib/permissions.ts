@@ -10,6 +10,7 @@ export type PermissionCode =
   | "see_all_agencies"
   | "view_global_reports"
   | "manage_users"
+  | "view_agency_users"
   | "view_agency_reports"
   | "create_prospect"
   | "validate_prospect"
@@ -63,6 +64,7 @@ const ROLE_PERMISSIONS: Record<string, PermissionCode[]> = {
     "submit_loan",
     "see_loans",
     "view_withdrawals",
+    "view_agency_users",
   ],
   Caissier: ["view_clients", "register_contribution_agence", "see_loans", "validate_withdrawal", "view_withdrawals"],
   // Agent (level 4) is mobile-first, but its /mobile/* routes are previewed on the web

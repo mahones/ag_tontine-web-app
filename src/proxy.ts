@@ -30,5 +30,8 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // "assets" is excluded too: public branding files (e.g. the login page's logo)
+  // must load before a session cookie exists, since the login page itself is
+  // one of the PUBLIC_PATHS an unauthenticated visitor is on.
+  matcher: ["/((?!_next/static|_next/image|assets/|favicon.ico).*)"],
 };

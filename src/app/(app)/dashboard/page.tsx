@@ -1,14 +1,10 @@
 import {
-  Banknote,
   Building2,
   Coins,
   FileBadge2,
-  HandCoins,
   Landmark,
-  PiggyBank,
   Settings,
   ShieldCheck,
-  TriangleAlert,
   UserCheck,
   UserPlus,
   Users,
@@ -19,7 +15,7 @@ import { hasPermission } from "@/lib/permissions";
 import { isAgent, isChefAgence, isDeveloper, isMicrofinanceOwner } from "@/lib/roles";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardCard } from "./dashboard-card";
-import { DashboardStatCard } from "./dashboard-stat-card";
+import { DashboardStatsGrid } from "./dashboard-stats-grid";
 import type {
   Agency,
   ApiEnvelope,
@@ -52,12 +48,11 @@ export default async function DashboardPage() {
   let stats: DashboardStats | null = null;
 
   if (isDeveloper(user)) {
-    const [microfinances, agencies, users, clients, roles, currencies, configurations, licences, statsResponse] =
+    const [microfinances, agencies, users, roles, currencies, configurations, licences, statsResponse] =
       await Promise.all([
         apiFetch<ApiEnvelope<Microfinance[]>>("/microfinances"),
         apiFetch<ApiEnvelope<Agency[]>>("/agencies"),
         apiFetch<ApiEnvelope<ManagedUser[]>>("/users"),
-        apiFetch<ApiEnvelope<Client[]>>("/clients"),
         apiFetch<ApiEnvelope<RoleType[]>>("/roles"),
         apiFetch<ApiEnvelope<Currency[]>>("/currencies"),
         apiFetch<ApiEnvelope<Configuration[]>>("/configurations"),
@@ -84,19 +79,15 @@ export default async function DashboardPage() {
           description="Toutes agences, toutes microfinances confondues — ouvrez une microfinance pour les voir."
           icon={Building2}
         />
+        {/* Same reasoning as Agences above: no flat, cross-microfinance Utilisateurs/Clients
+            list exists for Développeur any more — both are reached by opening a microfinance,
+            then one of its agencies (see /microfinances/[id]/agences/[agencyId]). */}
         <DashboardCard
-          href="/utilisateurs"
+          href="/microfinances"
           label="Utilisateurs"
           count={users.data.length}
-          description="Tous les comptes de la plateforme."
+          description="Tous les comptes de la plateforme — ouvrez une microfinance pour les voir."
           icon={Users}
-        />
-        <DashboardCard
-          href="/clients"
-          label="Clients"
-          count={clients.data.length}
-          description="Tous les clients, toutes agences confondues."
-          icon={UserCheck}
         />
         <DashboardCard
           href="/roles"
@@ -243,40 +234,7 @@ export default async function DashboardPage() {
 
       {stats || cards ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {stats && (
-            <>
-              <DashboardStatCard
-                label="Cotisations ce mois-ci"
-                value={stats.cotisations.this_month}
-                description={`Cumul : ${new Intl.NumberFormat("fr-FR").format(stats.cotisations.total)}`}
-                icon={PiggyBank}
-              />
-              <DashboardStatCard
-                label="Prêts en cours"
-                value={stats.loans.active_count}
-                description={`Montant en cours : ${new Intl.NumberFormat("fr-FR").format(stats.loans.active_amount)}`}
-                icon={HandCoins}
-              />
-              <DashboardStatCard
-                label="Prêts en retard"
-                value={stats.loans.overdue_count}
-                description={`Montant estimé en retard : ${new Intl.NumberFormat("fr-FR").format(stats.loans.overdue_amount)}`}
-                icon={TriangleAlert}
-              />
-              <DashboardStatCard
-                label="Retraits ce mois-ci"
-                value={stats.withdrawals.this_month}
-                description={`Cumul : ${new Intl.NumberFormat("fr-FR").format(stats.withdrawals.total)}`}
-                icon={Banknote}
-              />
-              <DashboardStatCard
-                label="Nouveaux prospects (7 jours)"
-                value={stats.prospects.last_7_days}
-                description={`${stats.prospects.pending} en attente de conversion — ${stats.prospects.last_30_days} sur 30 jours.`}
-                icon={UserPlus}
-              />
-            </>
-          )}
+          {stats && <DashboardStatsGrid stats={stats} />}
           {cards}
         </div>
       ) : (

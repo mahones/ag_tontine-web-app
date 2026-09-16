@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination } from "@/components/ui/pagination";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -90,15 +91,22 @@ export function AgentProspectsTable({
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1.5">
-                      <Link
-                        href={`/agent/prospects/${prospect.id}`}
-                        className={buttonVariants({ variant: "outline", size: "icon-sm" })}
-                      >
-                        <PencilIcon />
-                        <span className="sr-only">
-                          Modifier {formatPersonName(prospect.first_name, prospect.last_name)}
-                        </span>
-                      </Link>
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <Link
+                              href={`/agent/prospects/${prospect.id}`}
+                              className={buttonVariants({ variant: "outline", size: "icon-sm" })}
+                            />
+                          }
+                        >
+                          <PencilIcon />
+                          <span className="sr-only">
+                            Modifier {formatPersonName(prospect.first_name, prospect.last_name)}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>Modifier</TooltipContent>
+                      </Tooltip>
                     </div>
                   </TableCell>
                 </TableRow>

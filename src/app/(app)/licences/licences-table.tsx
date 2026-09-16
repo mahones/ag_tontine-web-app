@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination } from "@/components/ui/pagination";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -96,13 +97,20 @@ export function LicencesTable({
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1.5">
-                      <Link
-                        href={`/licences/${licence.id}`}
-                        className={buttonVariants({ variant: "outline", size: "icon-sm" })}
-                      >
-                        <PencilIcon />
-                        <span className="sr-only">Modifier {licence.licence_key}</span>
-                      </Link>
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <Link
+                              href={`/licences/${licence.id}`}
+                              className={buttonVariants({ variant: "outline", size: "icon-sm" })}
+                            />
+                          }
+                        >
+                          <PencilIcon />
+                          <span className="sr-only">Modifier {licence.licence_key}</span>
+                        </TooltipTrigger>
+                        <TooltipContent>Modifier</TooltipContent>
+                      </Tooltip>
                       <DeleteLicenceButton id={licence.id} licenceKey={licence.licence_key} />
                     </div>
                   </TableCell>

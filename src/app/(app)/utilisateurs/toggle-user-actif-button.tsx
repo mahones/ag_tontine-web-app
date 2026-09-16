@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2Icon, PowerIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toggleUserActifAction } from "./actions";
 
 export function ToggleUserActifButton({ id, isActive }: { id: string; isActive: boolean }) {
@@ -25,9 +26,12 @@ export function ToggleUserActifButton({ id, isActive }: { id: string; isActive: 
   }
 
   return (
-    <Button variant="outline" size="icon-sm" disabled={pending} onClick={handleClick}>
-      {pending ? <Loader2Icon className="animate-spin" /> : <PowerIcon />}
-      <span className="sr-only">{isActive ? "Désactiver" : "Activer"}</span>
-    </Button>
+    <Tooltip>
+      <TooltipTrigger render={<Button variant="outline" size="icon-sm" disabled={pending} onClick={handleClick} />}>
+        {pending ? <Loader2Icon className="animate-spin" /> : <PowerIcon />}
+        <span className="sr-only">{isActive ? "Désactiver" : "Activer"}</span>
+      </TooltipTrigger>
+      <TooltipContent>{isActive ? "Désactiver" : "Activer"}</TooltipContent>
+    </Tooltip>
   );
 }

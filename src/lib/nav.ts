@@ -29,13 +29,19 @@ export function getNavItems(user: AuthUser): NavItem[] {
     items.push({ href: "/prospects", label: "Prospects" });
   }
 
-  // manage_users: Super Admin (microfinance-wide) and Chef Agence (own agency); the
-  // Développeur-only create/edit actions inside the page are hidden for everyone else.
-  if (isDeveloper(user) || hasPermission(user, "manage_users")) {
+  // manage_users: Super Admin (microfinance-wide, create/edit) and Chef Agence (own
+  // agency, create/edit); view_agency_users: Gestionnaire (read-only, own agency).
+  // Développeur has no direct users list — they reach staff by drilling down into a
+  // microfinance's agencies instead (see /microfinances). Excluded explicitly here since
+  // hasPermission() always returns true for a Développeur (level 0 bypasses every check).
+  if (!isDeveloper(user) && (hasPermission(user, "manage_users") || hasPermission(user, "view_agency_users"))) {
     items.push({ href: "/utilisateurs", label: "Utilisateurs" });
   }
 
-  if (hasPermission(user, "view_clients") && !isAgent(user)) {
+  // Développeur has no direct clients list either (same reasoning as Utilisateurs above):
+  // they reach a microfinance's clients by drilling into its agencies instead, where the
+  // existing client detail page (/clients/{id}) is still used to view one.
+  if (!isDeveloper(user) && hasPermission(user, "view_clients") && !isAgent(user)) {
     items.push({ href: "/clients", label: "Clients" });
   }
 

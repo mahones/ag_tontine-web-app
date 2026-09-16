@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { deleteUserAction } from "./actions";
 
 export function DeleteUserButton({ id, name }: { id: string; name: string }) {
@@ -39,10 +40,13 @@ export function DeleteUserButton({ id, name }: { id: string; name: string }) {
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger render={<Button variant="destructive" size="icon-sm" />}>
-        <Trash2Icon />
-        <span className="sr-only">Supprimer {name}</span>
-      </AlertDialogTrigger>
+      <Tooltip>
+        <TooltipTrigger render={<AlertDialogTrigger render={<Button variant="destructive" size="icon-sm" />} />}>
+          <Trash2Icon />
+          <span className="sr-only">Supprimer {name}</span>
+        </TooltipTrigger>
+        <TooltipContent>Supprimer</TooltipContent>
+      </Tooltip>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Supprimer « {name} » ?</AlertDialogTitle>

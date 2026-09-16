@@ -1,9 +1,16 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PlusIcon } from "lucide-react";
 import { requireDeveloper } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
+import { buildListQuery, currentSearchValue } from "@/lib/list-query";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ApiEnvelope, Agency, Client, Notebook } from "@/lib/types";
+import type { ApiEnvelope, Agency, Client, DashboardStats, ManagedUser, Notebook, PaginatedEnvelope } from "@/lib/types";
+import { DashboardStatsGrid } from "@/app/(app)/dashboard/dashboard-stats-grid";
+import { AgencyPersonnelTable } from "./agency-personnel-table";
+import { ClientsTable } from "@/app/(app)/clients/clients-table";
 
 export const metadata = {
   title: "Détail de l'agence — Tontine",
@@ -16,24 +23,39 @@ const NOTEBOOK_STATUS_LABELS: Record<Notebook["status"], string> = {
   closed: "Clôturé",
 };
 
+const STAFF_PARAMS = { page: "staff_page", search: "staff_search" };
+const CLIENTS_PARAMS = { page: "clients_page", search: "clients_search" };
+
 export default async function AgencyDetailPage(
   props: PageProps<"/microfinances/[id]/agences/[agencyId]">,
 ) {
   await requireDeveloper();
   const { id, agencyId } = await props.params;
+  const searchParams = await props.searchParams;
 
-  // Dev-only /agencies, /clients and /notebooks return every record platform-wide (no
-  // agency-scoped list route or stats endpoint exists) — filtered/aggregated client-side.
-  const [{ data: allAgencies }, { data: allClients }, { data: allNotebooks }] = await Promise.all([
-    apiFetch<ApiEnvelope<Agency[]>>("/agencies"),
-    apiFetch<ApiEnvelope<Client[]>>("/clients"),
-    apiFetch<ApiEnvelope<Notebook[]>>("/notebooks"),
-  ]);
+  // Dev-only /agencies and /notebooks return every record platform-wide (no agency-scoped
+  // list route or stats endpoint exists) — filtered/aggregated client-side; both are small,
+  // bounded datasets (agencies count, one microfinance's notebooks). /users and /clients, on
+  // the other hand, can grow large across a whole platform, so those two are fetched
+  // agency-scoped and paginated (?agency_id=&page=&per_page=) — this is also the only place a
+  // Développeur reaches an agency's staff/clients, there being no direct, cross-microfinance
+  // "Utilisateurs" list in their own nav.
+  const [{ data: allAgencies }, { data: allNotebooks }, staffResponse, clientsResponse, { data: stats }] =
+    await Promise.all([
+      apiFetch<ApiEnvelope<Agency[]>>("/agencies"),
+      apiFetch<ApiEnvelope<Notebook[]>>("/notebooks"),
+      apiFetch<PaginatedEnvelope<ManagedUser>>(
+        `/users?agency_id=${agencyId}&${buildListQuery(searchParams, 15, STAFF_PARAMS).slice(1)}`,
+      ),
+      apiFetch<PaginatedEnvelope<Client>>(
+        `/clients?agency_id=${agencyId}&${buildListQuery(searchParams, 15, CLIENTS_PARAMS).slice(1)}`,
+      ),
+      apiFetch<ApiEnvelope<DashboardStats>>(`/agencies/${agencyId}/stats`),
+    ]);
 
   const agency = allAgencies.find((candidate) => candidate.id === agencyId && candidate.microfinance?.id === id);
   if (!agency) notFound();
 
-  const clients = allClients.filter((client) => client.agency_id === agencyId);
   const notebooks = allNotebooks.filter((notebook) => notebook.agency_id === agencyId);
   const activeNotebooks = notebooks.filter((notebook) => notebook.status === "active");
 
@@ -58,11 +80,18 @@ export default async function AgencyDetailPage(
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <DashboardStatsGrid stats={stats} />
+        <Card>
+          <CardHeader>
+            <CardDescription>Personnel</CardDescription>
+            <CardTitle className="text-3xl">{staffResponse.meta.total}</CardTitle>
+          </CardHeader>
+        </Card>
         <Card>
           <CardHeader>
             <CardDescription>Personnes inscrites</CardDescription>
-            <CardTitle className="text-3xl">{clients.length}</CardTitle>
+            <CardTitle className="text-3xl">{clientsResponse.meta.total}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -87,6 +116,32 @@ export default async function AgencyDetailPage(
           </div>
         </div>
       )}
+
+      <div>
+        <div className="mb-3 flex items-center justify-between gap-4">
+          <h2 className="text-lg font-medium tracking-tight">Personnel ({staffResponse.meta.total})</h2>
+          <Link href="/utilisateurs/nouveau" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            <PlusIcon />
+            Nouvel utilisateur
+          </Link>
+        </div>
+        <AgencyPersonnelTable
+          staff={staffResponse.data}
+          meta={staffResponse.meta}
+          initialSearch={currentSearchValue(searchParams, STAFF_PARAMS.search)}
+          paramNames={STAFF_PARAMS}
+        />
+      </div>
+
+      <div>
+        <h2 className="mb-3 text-lg font-medium tracking-tight">Clients ({clientsResponse.meta.total})</h2>
+        <ClientsTable
+          clients={clientsResponse.data}
+          meta={clientsResponse.meta}
+          initialSearch={currentSearchValue(searchParams, CLIENTS_PARAMS.search)}
+          paramNames={CLIENTS_PARAMS}
+        />
+      </div>
     </div>
   );
 }

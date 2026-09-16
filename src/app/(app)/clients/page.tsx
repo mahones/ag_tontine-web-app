@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { PlusIcon } from "lucide-react";
 import { requirePermission } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { hasPermission } from "@/lib/permissions";
+import { isDeveloper } from "@/lib/roles";
 import { buttonVariants } from "@/components/ui/button";
 import { buildListQuery, currentSearchValue } from "@/lib/list-query";
 import type { Client, PaginatedEnvelope } from "@/lib/types";
@@ -12,8 +14,14 @@ export const metadata = {
   title: "Clients — Tontine",
 };
 
+/**
+ * Développeur has no agency of their own (agency_id is null), so this
+ * agency-scoped page doesn't apply to them — they reach a microfinance's
+ * clients by drilling into its agencies instead (see /microfinances).
+ */
 export default async function ClientsPage(props: PageProps<"/clients">) {
   const user = await requirePermission("view_clients");
+  if (isDeveloper(user)) redirect("/microfinances");
 
   const searchParams = await props.searchParams;
 

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination } from "@/components/ui/pagination";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -102,13 +103,20 @@ export function UtilisateursTable({
                       <div className="flex justify-end gap-1.5">
                         {canManage && <ToggleUserActifButton id={user.id} isActive={user.is_active} />}
                         {rowIsEditable(user) && (
-                          <Link
-                            href={`/utilisateurs/${user.id}`}
-                            className={buttonVariants({ variant: "outline", size: "icon-sm" })}
-                          >
-                            <PencilIcon />
-                            <span className="sr-only">Modifier {fullName(user)}</span>
-                          </Link>
+                          <Tooltip>
+                            <TooltipTrigger
+                              render={
+                                <Link
+                                  href={`/utilisateurs/${user.id}`}
+                                  className={buttonVariants({ variant: "outline", size: "icon-sm" })}
+                                />
+                              }
+                            >
+                              <PencilIcon />
+                              <span className="sr-only">Modifier {fullName(user)}</span>
+                            </TooltipTrigger>
+                            <TooltipContent>Modifier</TooltipContent>
+                          </Tooltip>
                         )}
                         {canManage && <DeleteUserButton id={user.id} name={fullName(user)} />}
                       </div>

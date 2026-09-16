@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 
 type AuthSplitLayoutProps = {
   eyebrow?: string;
@@ -27,6 +28,14 @@ export function AuthSplitLayout({ eyebrow, title, description, children }: AuthS
 
         <div className="flex flex-1 items-center justify-center p-6 sm:p-10">
           <div className="w-full max-w-sm">
+            <Image
+              src="/assets/e-tontine-logo-mark.png"
+              alt="E-Tontine"
+              width={245}
+              height={253}
+              className="mx-auto mb-6 block h-24 w-auto"
+              priority
+            />
             {eyebrow && <p className="mb-2 text-sm font-medium text-muted-foreground">{eyebrow}</p>}
             <h1 className="text-3xl font-bold tracking-tight text-foreground">{title}</h1>
             <p className="mt-2 text-sm text-muted-foreground">{description}</p>

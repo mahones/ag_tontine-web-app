@@ -3,8 +3,9 @@ import { requireDeveloper } from "@/lib/auth";
 import { apiFetch, ApiError } from "@/lib/api";
 import { daysUntil, pickCurrentLicence } from "@/lib/licence";
 import { Badge } from "@/components/ui/badge";
-import type { ApiEnvelope, Agency, Licence, Microfinance } from "@/lib/types";
+import type { ApiEnvelope, Agency, DashboardStats, Licence, Microfinance } from "@/lib/types";
 import { LICENCE_STATUS_LABELS } from "@/app/(app)/licences/schema";
+import { DashboardStatsGrid } from "@/app/(app)/dashboard/dashboard-stats-grid";
 import { MicrofinanceAgencesTable } from "./microfinance-agences-table";
 
 export const metadata = {
@@ -25,10 +26,13 @@ export default async function MicrofinanceAgencesPage(props: PageProps<"/microfi
   }
 
   // Dev-only /agencies and /licences return every record platform-wide (no agency- or
-  // microfinance-scoped list route exists) — filtered client-side here.
-  const [{ data: allAgencies }, { data: allLicences }] = await Promise.all([
+  // microfinance-scoped list route exists) — filtered client-side here (both are small,
+  // bounded datasets). /microfinances/{id}/stats is the same financial/operational snapshot
+  // as the main dashboard's, scoped to this microfinance alone.
+  const [{ data: allAgencies }, { data: allLicences }, { data: stats }] = await Promise.all([
     apiFetch<ApiEnvelope<Agency[]>>("/agencies"),
     apiFetch<ApiEnvelope<Licence[]>>("/licences"),
+    apiFetch<ApiEnvelope<DashboardStats>>(`/microfinances/${id}/stats`),
   ]);
 
   const agencies = allAgencies.filter((agency) => agency.microfinance?.id === id);
@@ -43,6 +47,10 @@ export default async function MicrofinanceAgencesPage(props: PageProps<"/microfi
           <p className="font-mono text-sm text-muted-foreground">{microfinance.code}</p>
         </div>
         <LicenceStatusCard licence={currentLicence} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <DashboardStatsGrid stats={stats} />
       </div>
 
       <div>

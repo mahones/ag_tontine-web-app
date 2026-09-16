@@ -15,20 +15,26 @@ export const metadata = {
 };
 
 /**
- * Reserved for Développeur (all users), Super Admin (own microfinance, via
- * /microfinance/users) and Chef Agence (own agency, via /agency/users) — the three roles
- * carrying the manage_users permission. Développeur gets create/edit/toggle/delete on
- * anyone; Super Admin/Chef Agence can edit (name/phone/email/is_agent only) staff who
- * outrank them numerically lower — the table filters that per row, the backend enforces
- * it regardless. Toggle/delete stay dev-only server-side (see actions.ts).
+ * Reserved for Super Admin (own microfinance, via /microfinance/users), Chef Agence
+ * (own agency, via /agency/users) and Gestionnaire (own agency, read-only, via
+ * /agency/users too — view_agency_users). Super Admin/Chef Agence can edit
+ * (name/phone/email/is_agent only) staff who outrank them numerically lower — the
+ * table filters that per row, the backend enforces it regardless (and never returns
+ * peers/superiors in the first place). Gestionnaire never gets create/edit here.
+ *
+ * Développeur has no flat, cross-microfinance users list of their own — they reach
+ * staff by drilling into a microfinance's agencies instead (see /microfinances),
+ * where "Nouvel utilisateur"/edit links still land on the pages below.
  */
 export default async function UtilisateursPage(props: PageProps<"/utilisateurs">) {
   const user = await requireUser();
-  const dev = isDeveloper(user);
-  if (!dev && !hasPermission(user, "manage_users")) redirect("/dashboard");
+  if (isDeveloper(user)) redirect("/microfinances");
+  const canManageUsers = hasPermission(user, "manage_users");
+  const canViewUsers = hasPermission(user, "view_agency_users");
+  if (!canManageUsers && !canViewUsers) redirect("/dashboard");
 
   const searchParams = await props.searchParams;
-  const endpoint = dev ? "/users" : isMicrofinanceOwner(user) ? "/microfinance/users" : "/agency/users";
+  const endpoint = isMicrofinanceOwner(user) ? "/microfinance/users" : "/agency/users";
   const { data: users, meta } = await apiFetch<PaginatedEnvelope<ManagedUser>>(
     `${endpoint}${buildListQuery(searchParams)}`,
   );
@@ -39,14 +45,12 @@ export default async function UtilisateursPage(props: PageProps<"/utilisateurs">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Utilisateurs</h1>
           <p className="text-sm text-muted-foreground">
-            {dev
-              ? "Comptes de la plateforme, tous rôles et agences confondus."
-              : isMicrofinanceOwner(user)
-                ? "Comptes des agences de votre microfinance."
-                : "Comptes de votre agence."}
+            {isMicrofinanceOwner(user)
+              ? "Comptes des agences de votre microfinance."
+              : "Comptes de votre agence."}
           </p>
         </div>
-        {(dev || hasPermission(user, "manage_users")) && (
+        {canManageUsers && (
           <Link href="/utilisateurs/nouveau" className={buttonVariants()}>
             <PlusIcon />
             Nouvel utilisateur
@@ -58,8 +62,8 @@ export default async function UtilisateursPage(props: PageProps<"/utilisateurs">
         users={users}
         meta={meta}
         initialSearch={currentSearchValue(searchParams)}
-        canManage={dev}
-        canEdit={dev || hasPermission(user, "manage_users")}
+        canManage={false}
+        canEdit={canManageUsers}
         callerRoleLevel={user.role?.level ?? null}
       />
     </div>
