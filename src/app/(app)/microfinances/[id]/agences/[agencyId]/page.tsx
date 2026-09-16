@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PlusIcon } from "lucide-react";
 import { requireDeveloper } from "@/lib/auth";
-import { apiFetch } from "@/lib/api";
+import { apiFetch, ApiError } from "@/lib/api";
 import { buildListQuery, currentSearchValue } from "@/lib/list-query";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -33,30 +33,32 @@ export default async function AgencyDetailPage(
   const { id, agencyId } = await props.params;
   const searchParams = await props.searchParams;
 
-  // Dev-only /agencies and /notebooks return every record platform-wide (no agency-scoped
-  // list route or stats endpoint exists) — filtered/aggregated client-side; both are small,
-  // bounded datasets (agencies count, one microfinance's notebooks). /users and /clients, on
-  // the other hand, can grow large across a whole platform, so those two are fetched
-  // agency-scoped and paginated (?agency_id=&page=&per_page=) — this is also the only place a
-  // Développeur reaches an agency's staff/clients, there being no direct, cross-microfinance
-  // "Utilisateurs" list in their own nav.
-  const [{ data: allAgencies }, { data: allNotebooks }, staffResponse, clientsResponse, { data: stats }] =
-    await Promise.all([
-      apiFetch<ApiEnvelope<Agency[]>>("/agencies"),
-      apiFetch<ApiEnvelope<Notebook[]>>("/notebooks"),
-      apiFetch<PaginatedEnvelope<ManagedUser>>(
-        `/users?agency_id=${agencyId}&${buildListQuery(searchParams, 15, STAFF_PARAMS).slice(1)}`,
-      ),
-      apiFetch<PaginatedEnvelope<Client>>(
-        `/clients?agency_id=${agencyId}&${buildListQuery(searchParams, 15, CLIENTS_PARAMS).slice(1)}`,
-      ),
-      apiFetch<ApiEnvelope<DashboardStats>>(`/agencies/${agencyId}/stats`),
-    ]);
+  // /agencies/{id}, /notebooks and /users/clients are all fetched agency-scoped now: the
+  // single agency by ID, notebooks via ?agency_id=, and staff/clients paginated via
+  // ?agency_id=&page=&per_page= — this is also the only place a Développeur reaches an
+  // agency's staff/clients, there being no direct, cross-microfinance "Utilisateurs" list in
+  // their own nav.
+  let agency: Agency;
+  try {
+    const response = await apiFetch<ApiEnvelope<Agency>>(`/agencies/${agencyId}`);
+    agency = response.data;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) notFound();
+    throw error;
+  }
+  if (agency.microfinance?.id !== id) notFound();
 
-  const agency = allAgencies.find((candidate) => candidate.id === agencyId && candidate.microfinance?.id === id);
-  if (!agency) notFound();
+  const [{ data: notebooks }, staffResponse, clientsResponse, { data: stats }] = await Promise.all([
+    apiFetch<ApiEnvelope<Notebook[]>>(`/notebooks?agency_id=${agencyId}`),
+    apiFetch<PaginatedEnvelope<ManagedUser>>(
+      `/users?agency_id=${agencyId}&${buildListQuery(searchParams, 15, STAFF_PARAMS).slice(1)}`,
+    ),
+    apiFetch<PaginatedEnvelope<Client>>(
+      `/clients?agency_id=${agencyId}&${buildListQuery(searchParams, 15, CLIENTS_PARAMS).slice(1)}`,
+    ),
+    apiFetch<ApiEnvelope<DashboardStats>>(`/agencies/${agencyId}/stats`),
+  ]);
 
-  const notebooks = allNotebooks.filter((notebook) => notebook.agency_id === agencyId);
   const activeNotebooks = notebooks.filter((notebook) => notebook.status === "active");
 
   const notebooksByStatus = notebooks.reduce<Record<string, number>>((acc, notebook) => {

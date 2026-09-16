@@ -11,10 +11,7 @@ export type AgencyActionResult =
   | { success: true }
   | { success: false; message: string; errors?: Record<string, string[]> };
 
-export async function createAgencyAction(
-  currencyId: string,
-  values: AgencyFormValues,
-): Promise<AgencyActionResult> {
+export async function createAgencyAction(values: AgencyFormValues): Promise<AgencyActionResult> {
   await requireSuperAdmin();
 
   const parsed = agencyFormSchema.safeParse(values);
@@ -25,7 +22,7 @@ export async function createAgencyAction(
   try {
     await apiFetch<ApiEnvelope<Agency>>("/agencies", {
       method: "POST",
-      body: { currency_id: currencyId, ...parsed.data },
+      body: parsed.data,
     });
   } catch (error) {
     if (error instanceof ApiError) {

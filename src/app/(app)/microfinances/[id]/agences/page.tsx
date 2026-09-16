@@ -25,17 +25,17 @@ export default async function MicrofinanceAgencesPage(props: PageProps<"/microfi
     throw error;
   }
 
-  // Dev-only /agencies and /licences return every record platform-wide (no agency- or
-  // microfinance-scoped list route exists) — filtered client-side here (both are small,
-  // bounded datasets). /microfinances/{id}/stats is the same financial/operational snapshot
-  // as the main dashboard's, scoped to this microfinance alone.
-  const [{ data: allAgencies }, { data: allLicences }, { data: stats }] = await Promise.all([
-    apiFetch<ApiEnvelope<Agency[]>>("/agencies"),
+  // Dev-only /licences returns every record platform-wide (no microfinance-scoped list
+  // route exists) — filtered client-side here (small, bounded dataset: licences are one
+  // per microfinance per period). /agencies is now scoped server-side via ?microfinance_id=.
+  // /microfinances/{id}/stats is the same financial/operational snapshot as the main
+  // dashboard's, scoped to this microfinance alone.
+  const [{ data: agencies }, { data: allLicences }, { data: stats }] = await Promise.all([
+    apiFetch<ApiEnvelope<Agency[]>>(`/agencies?microfinance_id=${id}`),
     apiFetch<ApiEnvelope<Licence[]>>("/licences"),
     apiFetch<ApiEnvelope<DashboardStats>>(`/microfinances/${id}/stats`),
   ]);
 
-  const agencies = allAgencies.filter((agency) => agency.microfinance?.id === id);
   const licences = allLicences.filter((licence) => licence.microfinance_id === id);
   const currentLicence = pickCurrentLicence(licences);
 

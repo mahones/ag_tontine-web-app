@@ -37,6 +37,7 @@ export default async function EditAgencyPage(props: PageProps<"/agences/[id]">) 
           address: agency.address,
           phone: agency.phone,
           is_headquarters: agency.is_headquarters,
+          currency_id: agency.currency?.id ?? "",
         }}
         onSubmit={boundUpdate}
         submitLabel="Enregistrer les modifications"

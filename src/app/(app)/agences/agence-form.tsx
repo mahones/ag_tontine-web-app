@@ -1,17 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { Currency } from "@/lib/types";
 import { agencyFormSchema, type AgencyFormValues } from "./schema";
 import type { AgencyActionResult } from "./actions";
 
 type AgencyFormProps = {
+  // Only passed (and the currency picker only rendered) at creation — see schema.ts for why
+  // the edit form still needs currency_id in its default values despite hiding this field.
+  currencies?: Currency[];
   defaultValues?: Partial<AgencyFormValues>;
   onSubmit: (values: AgencyFormValues) => Promise<AgencyActionResult>;
   submitLabel: string;
@@ -22,9 +33,10 @@ const emptyDefaults: AgencyFormValues = {
   address: "",
   phone: "",
   is_headquarters: false,
+  currency_id: "",
 };
 
-export function AgencyForm({ defaultValues, onSubmit, submitLabel }: AgencyFormProps) {
+export function AgencyForm({ currencies, defaultValues, onSubmit, submitLabel }: AgencyFormProps) {
   const [pending, setPending] = useState(false);
   const form = useForm<AgencyFormValues>({
     resolver: zodResolver(agencyFormSchema),
@@ -52,6 +64,38 @@ export function AgencyForm({ defaultValues, onSubmit, submitLabel }: AgencyFormP
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className="max-w-lg space-y-4">
+      {currencies && (
+        <div className="space-y-2">
+          <Label htmlFor="currency_id">Devise</Label>
+          <Controller
+            control={form.control}
+            name="currency_id"
+            render={({ field }) => (
+              <Select
+                items={currencies.map((currency) => ({ value: currency.id, label: `${currency.code} — ${currency.name}` }))}
+                value={field.value || null}
+                onValueChange={field.onChange}
+                disabled={pending}
+              >
+                <SelectTrigger id="currency_id" className="w-full">
+                  <SelectValue placeholder="Sélectionner une devise" />
+                </SelectTrigger>
+                <SelectContent>
+                  {currencies.map((currency) => (
+                    <SelectItem key={currency.id} value={currency.id}>
+                      {currency.code} — {currency.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {form.formState.errors.currency_id && (
+            <p className="text-sm text-destructive">{form.formState.errors.currency_id.message}</p>
+          )}
+        </div>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="name">Nom</Label>
         <Input id="name" disabled={pending} {...form.register("name")} />

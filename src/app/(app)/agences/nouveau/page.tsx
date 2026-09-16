@@ -1,7 +1,6 @@
 import { requireSuperAdmin } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import type { ApiEnvelope, Agency } from "@/lib/types";
+import type { ApiEnvelope, Agency, Currency } from "@/lib/types";
 import { AgencyForm } from "../agence-form";
 import { createAgencyAction } from "../actions";
 
@@ -12,12 +11,14 @@ export const metadata = {
 export default async function NewAgencyPage() {
   await requireSuperAdmin();
 
-  const { data: agencies } = await apiFetch<ApiEnvelope<Agency[]>>("/microfinance/agencies");
-  // A microfinance operates in a single currency in practice, and there's no API route
-  // exposing the currency list to a Super Admin — so a new agency silently inherits the
-  // currency of the microfinance's headquarters (falling back to any existing agency).
+  const [{ data: agencies }, { data: currencies }] = await Promise.all([
+    apiFetch<ApiEnvelope<Agency[]>>("/microfinance/agencies"),
+    apiFetch<ApiEnvelope<Currency[]>>("/microfinance/currencies"),
+  ]);
+  // Default to the headquarters' currency (falling back to any existing agency's) since a
+  // microfinance operates in a single currency in practice, but the Super Admin can now
+  // pick a different one from the platform's full list.
   const referenceAgency = agencies.find((agency) => agency.is_headquarters) ?? agencies[0];
-  const boundCreate = createAgencyAction.bind(null, referenceAgency.currency?.id ?? "");
 
   return (
     <div className="space-y-6">
@@ -28,16 +29,12 @@ export default async function NewAgencyPage() {
         </p>
       </div>
 
-      {referenceAgency.currency && (
-        <Alert>
-          <AlertDescription>
-            Cette agence utilisera la même devise que votre siège : {referenceAgency.currency.code} —{" "}
-            {referenceAgency.currency.name}.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <AgencyForm onSubmit={boundCreate} submitLabel="Créer l'agence" />
+      <AgencyForm
+        currencies={currencies}
+        defaultValues={{ currency_id: referenceAgency?.currency?.id ?? "" }}
+        onSubmit={createAgencyAction}
+        submitLabel="Créer l'agence"
+      />
     </div>
   );
 }
