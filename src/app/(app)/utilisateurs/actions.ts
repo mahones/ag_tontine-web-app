@@ -65,7 +65,11 @@ export async function createUserAction(values: UserFormValues): Promise<UserActi
   redirect("/utilisateurs");
 }
 
-export async function updateUserAction(id: string, values: UserFormValues): Promise<UserActionResult> {
+export async function updateUserAction(
+  id: string,
+  redirectTo: string,
+  values: UserFormValues,
+): Promise<UserActionResult> {
   await requireDeveloper();
 
   const parsed = userFormSchema.safeParse(values);
@@ -87,7 +91,8 @@ export async function updateUserAction(id: string, values: UserFormValues): Prom
 
   revalidatePath("/utilisateurs");
   revalidatePath(`/utilisateurs/${id}`);
-  redirect("/utilisateurs");
+  revalidatePath(redirectTo);
+  redirect(redirectTo);
 }
 
 /**

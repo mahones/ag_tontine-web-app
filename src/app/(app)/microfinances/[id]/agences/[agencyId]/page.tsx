@@ -132,6 +132,7 @@ export default async function AgencyDetailPage(
           meta={staffResponse.meta}
           initialSearch={currentSearchValue(searchParams, STAFF_PARAMS.search)}
           paramNames={STAFF_PARAMS}
+          backHref={`/microfinances/${id}/agences/${agencyId}`}
         />
       </div>
 

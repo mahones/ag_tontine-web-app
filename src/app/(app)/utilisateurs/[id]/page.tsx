@@ -40,7 +40,14 @@ export default async function EditUserPage(props: PageProps<"/utilisateurs/[id]"
       apiFetch<ApiEnvelope<Role[]>>("/roles"),
     ]);
 
-    const boundUpdate = updateUserAction.bind(null, user.id);
+    // A Développeur has no flat "/utilisateurs" list of their own (see
+    // UtilisateursPage), so editing staff reached from an agency's detail page
+    // must return there instead of falling back to "/utilisateurs" and
+    // bouncing straight to "/microfinances".
+    const { from } = await props.searchParams;
+    const backHref = typeof from === "string" && from.startsWith("/") && !from.startsWith("//") ? from : "/utilisateurs";
+
+    const boundUpdate = updateUserAction.bind(null, user.id, backHref);
 
     return (
       <div className="space-y-6">

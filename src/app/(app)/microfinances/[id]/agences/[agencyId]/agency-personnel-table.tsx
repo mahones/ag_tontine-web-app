@@ -25,11 +25,13 @@ export function AgencyPersonnelTable({
   meta,
   initialSearch = "",
   paramNames,
+  backHref,
 }: {
   staff: ManagedUser[];
   meta: PaginationMeta;
   initialSearch?: string;
   paramNames?: { page?: string; search?: string };
+  backHref: string;
 }) {
   const { search, setSearch, setPage } = useListQuery(initialSearch, paramNames);
 
@@ -83,7 +85,7 @@ export function AgencyPersonnelTable({
                         <TooltipTrigger
                           render={
                             <Link
-                              href={`/utilisateurs/${member.id}`}
+                              href={`/utilisateurs/${member.id}?from=${encodeURIComponent(backHref)}`}
                               className={buttonVariants({ variant: "outline", size: "icon-sm" })}
                             />
                           }
