@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Eye, EyeOff, Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +15,12 @@ type LoginFormProps = {
 export function LoginForm({ action }: LoginFormProps) {
   const [state, formAction, pending] = useActionState<LoginState, FormData>(action, null);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (state?.error) {
+      toast.error(state.error);
+    }
+  }, [state]);
 
   return (
     <form action={formAction} className="space-y-5">
@@ -58,12 +65,6 @@ export function LoginForm({ action }: LoginFormProps) {
           </button>
         </div>
       </div>
-
-      {state?.error && (
-        <p className="text-sm text-destructive" role="alert">
-          {state.error}
-        </p>
-      )}
 
       <Button type="submit" className="h-11 w-full rounded-lg text-sm font-semibold" disabled={pending}>
         {pending && <Loader2Icon className="animate-spin" />}
