@@ -6,6 +6,7 @@ import { apiFetch, ApiError } from "@/lib/api";
 import { hasPermission } from "@/lib/permissions";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
@@ -15,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { ApiEnvelope, Client, Notebook } from "@/lib/types";
+import type { ApiEnvelope, Client, ClientStats, Notebook } from "@/lib/types";
 import { formatFirstName, formatLastName, formatPersonName } from "@/lib/format-name";
 import { ClientEditForm } from "../client-edit-form";
 import { updateClientAction } from "../actions";
@@ -31,6 +32,8 @@ const NOTEBOOK_STATUS_LABELS: Record<Notebook["status"], string> = {
   closed: "Clôturé",
 };
 
+const numberFormatter = new Intl.NumberFormat("fr-FR");
+
 export default async function ClientDetailPage(props: PageProps<"/clients/[id]">) {
   const user = await requirePermission("view_clients");
   const { id } = await props.params;
@@ -44,7 +47,10 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
     throw error;
   }
 
-  const { data: notebooks } = await apiFetch<ApiEnvelope<Notebook[]>>(`/notebooks/client/${id}`);
+  const [{ data: notebooks }, { data: stats }] = await Promise.all([
+    apiFetch<ApiEnvelope<Notebook[]>>(`/notebooks/client/${id}`),
+    apiFetch<ApiEnvelope<ClientStats>>(`/clients/${id}/stats`),
+  ]);
   const boundUpdate = updateClientAction.bind(null, client.id);
   const canCreateNotebook = hasPermission(user, "create_notebook");
   // Matches ClientPolicy::update on the backend: editing client info is Chef Agence/
@@ -66,6 +72,33 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
                 .join(", ")
             : "—"}
         </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardDescription>Sommes disponibles</CardDescription>
+            <CardTitle className="text-3xl">{numberFormatter.format(Number(stats.available_balance))}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Retraits</CardDescription>
+            <CardTitle className="text-3xl">{stats.withdrawals.count}</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Total : {numberFormatter.format(Number(stats.withdrawals.total))}
+            </p>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardDescription>Prêts</CardDescription>
+            <CardTitle className="text-3xl">{stats.loans.count}</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Total : {numberFormatter.format(Number(stats.loans.total))}
+            </p>
+          </CardHeader>
+        </Card>
       </div>
 
       {canEditClient ? (

@@ -17,11 +17,13 @@ import type {
   Agency,
   Client,
   DashboardStats,
+  Loan,
   ManagedUser,
   Notebook,
   PaginatedEnvelope,
 } from "@/lib/types";
 import { DashboardStatsGrid } from "@/app/(app)/dashboard/dashboard-stats-grid";
+import { PendingLoansTable } from "@/app/(app)/dashboard/pending-loans-table";
 import { AgencyPersonnelTable } from "./agency-personnel-table";
 import { ClientsTable } from "@/app/(app)/clients/clients-table";
 
@@ -63,7 +65,7 @@ export default async function AgencyDetailPage(
   }
   if (agency.microfinance?.id !== id) notFound();
 
-  const [{ data: notebooks }, staffResponse, clientsResponse, { data: stats }] =
+  const [{ data: notebooks }, staffResponse, clientsResponse, { data: stats }, { data: pendingLoans }] =
     await Promise.all([
       apiFetch<ApiEnvelope<Notebook[]>>(`/notebooks?agency_id=${agencyId}`),
       apiFetch<PaginatedEnvelope<ManagedUser>>(
@@ -73,6 +75,7 @@ export default async function AgencyDetailPage(
         `/clients?agency_id=${agencyId}&${buildListQuery(searchParams, 15, CLIENTS_PARAMS).slice(1)}`,
       ),
       apiFetch<ApiEnvelope<DashboardStats>>(`/agencies/${agencyId}/stats`),
+      apiFetch<ApiEnvelope<Loan[]>>(`/agencies/${agencyId}/pending-loans`),
     ]);
 
   const activeNotebooks = notebooks.filter(
@@ -130,6 +133,8 @@ export default async function AgencyDetailPage(
           </CardHeader>
         </Card>
       </div>
+
+      <PendingLoansTable loans={pendingLoans} />
 
       {notebooks.length > 0 && (
         <div>

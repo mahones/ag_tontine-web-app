@@ -3,9 +3,10 @@ import { requireDeveloper } from "@/lib/auth";
 import { apiFetch, ApiError } from "@/lib/api";
 import { daysUntil, pickCurrentLicence } from "@/lib/licence";
 import { Badge } from "@/components/ui/badge";
-import type { ApiEnvelope, Agency, DashboardStats, Licence, Microfinance } from "@/lib/types";
+import type { ApiEnvelope, Agency, DashboardStats, Licence, Loan, Microfinance } from "@/lib/types";
 import { LICENCE_STATUS_LABELS } from "@/app/(app)/licences/schema";
 import { DashboardStatsGrid } from "@/app/(app)/dashboard/dashboard-stats-grid";
+import { PendingLoansTable } from "@/app/(app)/dashboard/pending-loans-table";
 import { MicrofinanceAgencesTable } from "./microfinance-agences-table";
 
 export const metadata = {
@@ -30,10 +31,11 @@ export default async function MicrofinanceAgencesPage(props: PageProps<"/microfi
   // per microfinance per period). /agencies is now scoped server-side via ?microfinance_id=.
   // /microfinances/{id}/stats is the same financial/operational snapshot as the main
   // dashboard's, scoped to this microfinance alone.
-  const [{ data: agencies }, { data: allLicences }, { data: stats }] = await Promise.all([
+  const [{ data: agencies }, { data: allLicences }, { data: stats }, { data: pendingLoans }] = await Promise.all([
     apiFetch<ApiEnvelope<Agency[]>>(`/agencies?microfinance_id=${id}`),
     apiFetch<ApiEnvelope<Licence[]>>("/licences"),
     apiFetch<ApiEnvelope<DashboardStats>>(`/microfinances/${id}/stats`),
+    apiFetch<ApiEnvelope<Loan[]>>(`/microfinances/${id}/pending-loans`),
   ]);
 
   const licences = allLicences.filter((licence) => licence.microfinance_id === id);
@@ -52,6 +54,8 @@ export default async function MicrofinanceAgencesPage(props: PageProps<"/microfi
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <DashboardStatsGrid stats={stats} />
       </div>
+
+      <PendingLoansTable loans={pendingLoans} showAgencyColumn />
 
       <div>
         <h2 className="mb-3 text-lg font-medium tracking-tight">

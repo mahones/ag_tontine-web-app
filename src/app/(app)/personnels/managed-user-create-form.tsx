@@ -7,6 +7,7 @@ import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -98,7 +99,7 @@ export function ManagedUserCreateForm({ roles, onSubmit }: ManagedUserCreateForm
 
       <div className="space-y-2">
         <Label htmlFor="password">Mot de passe</Label>
-        <Input id="password" type="password" disabled={pending} {...form.register("password")} />
+        <PasswordInput id="password" disabled={pending} {...form.register("password")} />
         <p className="text-xs text-muted-foreground">8 caractères minimum.</p>
         {form.formState.errors.password && (
           <p className="text-sm text-destructive">{form.formState.errors.password.message}</p>

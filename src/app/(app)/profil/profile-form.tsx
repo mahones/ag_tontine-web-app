@@ -7,6 +7,7 @@ import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import type { AuthUser } from "@/lib/types";
 import { profileFormSchema, type ProfileFormValues } from "./schema";
@@ -92,9 +93,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
       {needsCurrentPassword && (
         <div className="space-y-2">
           <Label htmlFor="current_password">Mot de passe actuel</Label>
-          <Input
+          <PasswordInput
             id="current_password"
-            type="password"
             disabled={pending}
             {...form.register("current_password")}
           />

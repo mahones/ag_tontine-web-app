@@ -122,6 +122,14 @@ export type NotebookState = {
   months_remaining: number;
 };
 
+// Mirrors ShowClientStatsAction in ag_tontine — aggregated across all of the
+// client's notebooks.
+export type ClientStats = {
+  available_balance: string;
+  withdrawals: { count: number; total: string };
+  loans: { count: number; total: string };
+};
+
 export type MonthlyContribution = {
   id: string;
   notebook_id: string;
@@ -144,6 +152,13 @@ export type Loan = {
   loan_date: string;
   created_at: string;
   updated_at: string;
+  // Only present when the backend eager-loads it (e.g. GET /loans/pending-approval).
+  notebook?: {
+    id: string;
+    notebook_number: string;
+    client: { id: string; first_name: string; last_name: string } | null;
+    agency: { id: string; name: string } | null;
+  };
 };
 
 export type Withdrawal = {

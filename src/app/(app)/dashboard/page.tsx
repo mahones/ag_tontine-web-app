@@ -1,5 +1,6 @@
 import {
   Building2,
+  Clock,
   Coins,
   FileBadge2,
   Landmark,
@@ -16,7 +17,9 @@ import { isAgent, isChefAgence, isDeveloper, isMicrofinanceOwner } from "@/lib/r
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardCard } from "./dashboard-card";
 import { DashboardMonthlyChart } from "./dashboard-monthly-chart";
+import { DashboardStatCard } from "./dashboard-stat-card";
 import { DashboardStatsGrid } from "./dashboard-stats-grid";
+import { PendingLoansTable } from "./pending-loans-table";
 import type {
   Agency,
   ApiEnvelope,
@@ -26,6 +29,7 @@ import type {
   DashboardMonthlyStats,
   DashboardStats,
   Licence,
+  Loan,
   ManagedUser,
   Microfinance,
   Prospect,
@@ -237,6 +241,12 @@ export default async function DashboardPage(props: PageProps<"/dashboard">) {
     );
   }
 
+  let pendingLoans: Loan[] = [];
+  if (hasPermission(user, "approve_loan")) {
+    const { data } = await apiFetch<ApiEnvelope<Loan[]>>("/loans/pending-approval");
+    pendingLoans = data;
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -247,8 +257,15 @@ export default async function DashboardPage(props: PageProps<"/dashboard">) {
       {stats || cards ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {stats && <DashboardStatsGrid stats={stats} />}
+          {hasPermission(user, "approve_loan") && (
+            <DashboardStatCard
+              label="Prêts en attente"
+              value={pendingLoans.length}
+              description="En attente d'approbation."
+              icon={Clock}
+            />
+          )}
           {cards}
-          {monthlyStats && <DashboardMonthlyChart stats={monthlyStats} />}
         </div>
       ) : (
         <Card className="max-w-md">
@@ -258,6 +275,10 @@ export default async function DashboardPage(props: PageProps<"/dashboard">) {
           </CardHeader>
         </Card>
       )}
+
+      <PendingLoansTable loans={pendingLoans} showAgencyColumn={isDeveloper(user) || isMicrofinanceOwner(user)} />
+
+      {monthlyStats && <DashboardMonthlyChart stats={monthlyStats} />}
     </div>
   );
 }
