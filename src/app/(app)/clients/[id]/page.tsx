@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import type { ApiEnvelope, Client, ClientStats, Notebook } from "@/lib/types";
 import { formatFirstName, formatLastName, formatPersonName } from "@/lib/format-name";
-import { ClientEditForm } from "../client-edit-form";
+import { ClientEditDialog } from "../client-edit-dialog";
 import { updateClientAction } from "../actions";
 
 export const metadata = {
@@ -59,19 +59,32 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {formatPersonName(client.first_name, client.last_name)}
-        </h1>
-        <p className="text-sm text-muted-foreground">{client.phone}</p>
-        <p className="text-sm text-muted-foreground">
-          Agent assigné :{" "}
-          {client.agents && client.agents.length > 0
-            ? client.agents
-                .map((agent) => formatPersonName(agent.first_name, agent.last_name))
-                .join(", ")
-            : "—"}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {formatPersonName(client.first_name, client.last_name)}
+          </h1>
+          <p className="text-sm text-muted-foreground">{client.phone}</p>
+          <p className="text-sm text-muted-foreground">
+            Agent assigné :{" "}
+            {client.agents && client.agents.length > 0
+              ? client.agents
+                  .map((agent) => formatPersonName(agent.first_name, agent.last_name))
+                  .join(", ")
+              : "—"}
+          </p>
+        </div>
+        {canEditClient && (
+          <ClientEditDialog
+            defaultValues={{
+              first_name: client.first_name,
+              last_name: client.last_name,
+              phone: client.phone,
+              address: client.address,
+            }}
+            onSubmit={boundUpdate}
+          />
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -84,59 +97,41 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
         <Card>
           <CardHeader>
             <CardDescription>Retraits</CardDescription>
-            <CardTitle className="text-3xl">{stats.withdrawals.count}</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Total : {numberFormatter.format(Number(stats.withdrawals.total))}
-            </p>
+            <CardTitle className="text-3xl">{numberFormatter.format(Number(stats.withdrawals.total))}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
             <CardDescription>Prêts</CardDescription>
-            <CardTitle className="text-3xl">{stats.loans.count}</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Total : {numberFormatter.format(Number(stats.loans.total))}
-            </p>
+            <CardTitle className="text-3xl">{numberFormatter.format(Number(stats.loans.total))}</CardTitle>
           </CardHeader>
         </Card>
       </div>
 
-      {canEditClient ? (
-        <ClientEditForm
-          defaultValues={{
-            first_name: client.first_name,
-            last_name: client.last_name,
-            phone: client.phone,
-            address: client.address,
-          }}
-          onSubmit={boundUpdate}
-        />
-      ) : (
-        <div className="space-y-1 text-sm">
-          <p>
-            <span className="text-muted-foreground">Prénom : </span>
-            {formatFirstName(client.first_name)}
-          </p>
-          <p>
-            <span className="text-muted-foreground">Nom : </span>
-            {formatLastName(client.last_name)}
-          </p>
-          <p>
-            <span className="text-muted-foreground">Téléphone : </span>
-            {client.phone}
-          </p>
-          <p>
-            <span className="text-muted-foreground">Adresse : </span>
-            {client.address}
-          </p>
-        </div>
-      )}
+      <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+        <p>
+          <span className="text-muted-foreground">Prénom : </span>
+          {formatFirstName(client.first_name)}
+        </p>
+        <p>
+          <span className="text-muted-foreground">Nom : </span>
+          {formatLastName(client.last_name)}
+        </p>
+        <p>
+          <span className="text-muted-foreground">Téléphone : </span>
+          {client.phone}
+        </p>
+        <p>
+          <span className="text-muted-foreground">Adresse : </span>
+          {client.address}
+        </p>
+      </div>
 
       <div>
         <div className="mb-3 flex items-center justify-between gap-4">
           <h2 className="text-lg font-medium tracking-tight">Carnets ({notebooks.length})</h2>
           {canCreateNotebook && (
-            <Link href={`/clients/${client.id}/carnets/nouveau`} className={buttonVariants({ size: "sm" })}>
+            <Link href={`/clients/${client.id}/carnets/nouveau`} className={buttonVariants()}>
               <PlusIcon />
               Nouveau carnet
             </Link>

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import type { Loan } from "@/lib/types";
 import { LOAN_TYPE_LABELS } from "@/app/(app)/clients/[id]/carnets/[notebookId]/prets/schema";
+import { PendingLoanActions } from "./pending-loan-actions";
 
 /**
  * "Prêts en attente d'approbation" list — reused on the main dashboard and on the
@@ -43,6 +44,7 @@ export function PendingLoansTable({
               <TableHead>Type</TableHead>
               <TableHead>Montant</TableHead>
               <TableHead>Statut</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -72,6 +74,9 @@ export function PendingLoansTable({
                 <TableCell>{loan.amount_loaned}</TableCell>
                 <TableCell>
                   <Badge variant="secondary">En attente</Badge>
+                </TableCell>
+                <TableCell>
+                  <PendingLoanActions loan={loan} />
                 </TableCell>
               </TableRow>
             ))}

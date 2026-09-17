@@ -168,7 +168,7 @@ export default async function AgencyDetailPage(
           </h2>
           <Link
             href="/personnels/nouveau"
-            className={buttonVariants({ variant: "default", size: "sm" })}
+            className={buttonVariants()}
           >
             <PlusIcon />
             Nouveau personnel
