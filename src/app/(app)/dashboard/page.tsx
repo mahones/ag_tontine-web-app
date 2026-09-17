@@ -87,12 +87,12 @@ export default async function DashboardPage(props: PageProps<"/dashboard">) {
           description="Toutes agences, toutes microfinances confondues — ouvrez une microfinance pour les voir."
           icon={Building2}
         />
-        {/* Same reasoning as Agences above: no flat, cross-microfinance Utilisateurs/Clients
+        {/* Same reasoning as Agences above: no flat, cross-microfinance Personnel/Clients
             list exists for Développeur any more — both are reached by opening a microfinance,
             then one of its agencies (see /microfinances/[id]/agences/[agencyId]). */}
         <DashboardCard
           href="/microfinances"
-          label="Utilisateurs"
+          label="Personnel"
           count={users.data.length}
           description="Tous les comptes de la plateforme — ouvrez une microfinance pour les voir."
           icon={Users}
@@ -149,8 +149,8 @@ export default async function DashboardPage(props: PageProps<"/dashboard">) {
           icon={Building2}
         />
         <DashboardCard
-          href="/utilisateurs"
-          label="Utilisateurs"
+          href="/personnels"
+          label="Personnel"
           count={users.data.length}
           description="Comptes de votre microfinance."
           icon={Users}
@@ -184,8 +184,8 @@ export default async function DashboardPage(props: PageProps<"/dashboard">) {
     cards = (
       <>
         <DashboardCard
-          href="/utilisateurs"
-          label="Utilisateurs"
+          href="/personnels"
+          label="Personnel"
           count={users.data.length}
           description="Comptes de votre agence."
           icon={Users}

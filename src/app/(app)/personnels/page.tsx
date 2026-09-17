@@ -8,10 +8,10 @@ import { isDeveloper, isMicrofinanceOwner } from "@/lib/roles";
 import { buttonVariants } from "@/components/ui/button";
 import { buildListQuery, currentSearchValue } from "@/lib/list-query";
 import type { ManagedUser, PaginatedEnvelope } from "@/lib/types";
-import { UtilisateursTable } from "./utilisateurs-table";
+import { PersonnelsTable } from "./personnels-table";
 
 export const metadata = {
-  title: "Utilisateurs — Tontine",
+  title: "Personnel — Tontine",
 };
 
 /**
@@ -26,7 +26,7 @@ export const metadata = {
  * staff by drilling into a microfinance's agencies instead (see /microfinances),
  * where "Nouvel utilisateur"/edit links still land on the pages below.
  */
-export default async function UtilisateursPage(props: PageProps<"/utilisateurs">) {
+export default async function PersonnelsPage(props: PageProps<"/personnels">) {
   const user = await requireUser();
   if (isDeveloper(user)) redirect("/microfinances");
   const canManageUsers = hasPermission(user, "manage_users");
@@ -43,7 +43,7 @@ export default async function UtilisateursPage(props: PageProps<"/utilisateurs">
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Utilisateurs</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Personnel</h1>
           <p className="text-sm text-muted-foreground">
             {isMicrofinanceOwner(user)
               ? "Comptes des agences de votre microfinance."
@@ -51,14 +51,14 @@ export default async function UtilisateursPage(props: PageProps<"/utilisateurs">
           </p>
         </div>
         {canManageUsers && (
-          <Link href="/utilisateurs/nouveau" className={buttonVariants()}>
+          <Link href="/personnels/nouveau" className={buttonVariants()}>
             <PlusIcon />
             Nouvel utilisateur
           </Link>
         )}
       </div>
 
-      <UtilisateursTable
+      <PersonnelsTable
         users={users}
         meta={meta}
         initialSearch={currentSearchValue(searchParams)}

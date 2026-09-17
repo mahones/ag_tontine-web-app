@@ -11,8 +11,9 @@ export type NavIcon =
   | "licences"
   | "agences"
   | "prospects"
-  | "utilisateurs"
-  | "clients";
+  | "personnels"
+  | "clients"
+  | "synchronisation";
 
 export type NavItem = {
   href: string;
@@ -48,10 +49,10 @@ export function getNavItems(user: AuthUser): NavItem[] {
   // microfinance's agencies instead (see /microfinances). Excluded explicitly here since
   // hasPermission() always returns true for a Développeur (level 0 bypasses every check).
   if (!isDeveloper(user) && (hasPermission(user, "manage_users") || hasPermission(user, "view_agency_users"))) {
-    items.push({ href: "/utilisateurs", label: "Utilisateurs", icon: "utilisateurs" });
+    items.push({ href: "/personnels", label: "Personnel", icon: "personnels" });
   }
 
-  // Développeur has no direct clients list either (same reasoning as Utilisateurs above):
+  // Développeur has no direct clients list either (same reasoning as Personnel above):
   // they reach a microfinance's clients by drilling into its agencies instead, where the
   // existing client detail page (/clients/{id}) is still used to view one.
   if (!isDeveloper(user) && hasPermission(user, "view_clients") && !isAgent(user)) {
@@ -61,6 +62,13 @@ export function getNavItems(user: AuthUser): NavItem[] {
   if (isAgent(user)) {
     items.push({ href: "/agent/prospects", label: "Mes prospects", icon: "prospects" });
     items.push({ href: "/agent/clients", label: "Mes clients", icon: "clients" });
+  }
+
+  // Same audience as the dashboard's stats cards. The page itself detects whether it's
+  // running against a cloud or a local instance (MOBILE.md §8, Phase 4 "vue locale
+  // uniquement") — no need to hide the link based on that here.
+  if (hasPermission(user, "view_agency_reports")) {
+    items.push({ href: "/synchronisation", label: "Synchronisation", icon: "synchronisation" });
   }
 
   return items;

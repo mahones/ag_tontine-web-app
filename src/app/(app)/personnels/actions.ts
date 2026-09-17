@@ -61,8 +61,8 @@ export async function createUserAction(values: UserFormValues): Promise<UserActi
     return { success: false, message: "Une erreur est survenue." };
   }
 
-  revalidatePath("/utilisateurs");
-  redirect("/utilisateurs");
+  revalidatePath("/personnels");
+  redirect("/personnels");
 }
 
 export async function updateUserAction(
@@ -89,8 +89,8 @@ export async function updateUserAction(
     return { success: false, message: "Une erreur est survenue." };
   }
 
-  revalidatePath("/utilisateurs");
-  revalidatePath(`/utilisateurs/${id}`);
+  revalidatePath("/personnels");
+  revalidatePath(`/personnels/${id}`);
   revalidatePath(redirectTo);
   redirect(redirectTo);
 }
@@ -124,8 +124,8 @@ export async function createManagedUserAction(values: CreateManagedUserFormValue
     return { success: false, message: "Une erreur est survenue." };
   }
 
-  revalidatePath("/utilisateurs");
-  redirect("/utilisateurs");
+  revalidatePath("/personnels");
+  redirect("/personnels");
 }
 
 /**
@@ -154,8 +154,8 @@ export async function createMicrofinanceUserAction(
     return { success: false, message: "Une erreur est survenue." };
   }
 
-  revalidatePath("/utilisateurs");
-  redirect("/utilisateurs");
+  revalidatePath("/personnels");
+  redirect("/personnels");
 }
 
 /**
@@ -184,9 +184,9 @@ export async function updateManagedUserAction(id: string, values: ManagedUserFor
     return { success: false, message: "Une erreur est survenue." };
   }
 
-  revalidatePath("/utilisateurs");
-  revalidatePath(`/utilisateurs/${id}`);
-  redirect("/utilisateurs");
+  revalidatePath("/personnels");
+  revalidatePath(`/personnels/${id}`);
+  redirect("/personnels");
 }
 
 export async function deleteUserAction(id: string): Promise<UserActionResult> {
@@ -201,7 +201,7 @@ export async function deleteUserAction(id: string): Promise<UserActionResult> {
     return { success: false, message: "Une erreur est survenue." };
   }
 
-  revalidatePath("/utilisateurs");
+  revalidatePath("/personnels");
   return { success: true };
 }
 
@@ -217,6 +217,6 @@ export async function toggleUserActifAction(id: string): Promise<UserActionResul
     return { success: false, message: "Une erreur est survenue." };
   }
 
-  revalidatePath("/utilisateurs");
+  revalidatePath("/personnels");
   return { success: true };
 }

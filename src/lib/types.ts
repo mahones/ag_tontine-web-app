@@ -176,7 +176,6 @@ export type Collection = {
   agency_box: boolean;
   repayment_made: boolean;
   amount: string;
-  synced: boolean;
   user?: ManagedUser;
   created_at: string;
   updated_at: string;
@@ -230,4 +229,36 @@ export type AuthUser = {
   is_agent: boolean;
   role: Role | null;
   agency?: Agency | null;
+};
+
+/**
+ * GET /agency/sync-status (SyncOutboxController) — always scoped to the caller's own
+ * agency (see ag_tontine/app/Actions/Sync/GetAgencySyncStatusAction.php). `local_instance`
+ * is null when this instance was never provisioned as a local server (MOBILE.md §2) —
+ * always the case on the cloud, where `deployment_mode` is "cloud" and every count is 0.
+ */
+export type SyncOutboxConflict = {
+  id: string;
+  entity_type: string;
+  entity_id: string;
+  reason: string | null;
+  attempt_count: number;
+  created_at: string;
+};
+
+export type SyncStatus = {
+  deployment_mode: "cloud" | "local";
+  local_instance: {
+    last_push_at: string | null;
+    last_reference_pull_at: string | null;
+    cloud_base_url: string | null;
+  } | null;
+  outbox_counts: {
+    pending: number;
+    in_flight: number;
+    applied: number;
+    failed: number;
+    discarded: number;
+  };
+  conflicts: SyncOutboxConflict[];
 };

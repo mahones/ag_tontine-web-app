@@ -21,7 +21,7 @@ import { useListQuery } from "@/hooks/use-list-query";
 import { DeleteUserButton } from "./delete-user-button";
 import { ToggleUserActifButton } from "./toggle-user-actif-button";
 
-export function UtilisateursTable({
+export function PersonnelsTable({
   users,
   meta,
   initialSearch = "",
@@ -107,7 +107,7 @@ export function UtilisateursTable({
                             <TooltipTrigger
                               render={
                                 <Link
-                                  href={`/utilisateurs/${user.id}`}
+                                  href={`/personnels/${user.id}`}
                                   className={buttonVariants({ variant: "outline", size: "icon-sm" })}
                                 />
                               }

@@ -8,6 +8,7 @@ import {
   KeyRoundIcon,
   LandmarkIcon,
   LayoutDashboardIcon,
+  RefreshCwIcon,
   SettingsIcon,
   ShieldCheckIcon,
   UserPlusIcon,
@@ -27,8 +28,9 @@ const ICONS: Record<NavIcon, LucideIcon> = {
   licences: KeyRoundIcon,
   agences: Building2Icon,
   prospects: UserPlusIcon,
-  utilisateurs: UsersIcon,
+  personnels: UsersIcon,
   clients: UserRoundIcon,
+  synchronisation: RefreshCwIcon,
 };
 
 export function AppSidebarNav({ items }: { items: NavItem[] }) {

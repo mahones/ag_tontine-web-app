@@ -6,8 +6,21 @@ import { apiFetch, ApiError } from "@/lib/api";
 import { buildListQuery, currentSearchValue } from "@/lib/list-query";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import type { ApiEnvelope, Agency, Client, DashboardStats, ManagedUser, Notebook, PaginatedEnvelope } from "@/lib/types";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import type {
+  ApiEnvelope,
+  Agency,
+  Client,
+  DashboardStats,
+  ManagedUser,
+  Notebook,
+  PaginatedEnvelope,
+} from "@/lib/types";
 import { DashboardStatsGrid } from "@/app/(app)/dashboard/dashboard-stats-grid";
 import { AgencyPersonnelTable } from "./agency-personnel-table";
 import { ClientsTable } from "@/app/(app)/clients/clients-table";
@@ -36,11 +49,13 @@ export default async function AgencyDetailPage(
   // /agencies/{id}, /notebooks and /users/clients are all fetched agency-scoped now: the
   // single agency by ID, notebooks via ?agency_id=, and staff/clients paginated via
   // ?agency_id=&page=&per_page= — this is also the only place a Développeur reaches an
-  // agency's staff/clients, there being no direct, cross-microfinance "Utilisateurs" list in
+  // agency's staff/clients, there being no direct, cross-microfinance "Personnel" list in
   // their own nav.
   let agency: Agency;
   try {
-    const response = await apiFetch<ApiEnvelope<Agency>>(`/agencies/${agencyId}`);
+    const response = await apiFetch<ApiEnvelope<Agency>>(
+      `/agencies/${agencyId}`,
+    );
     agency = response.data;
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound();
@@ -48,29 +63,37 @@ export default async function AgencyDetailPage(
   }
   if (agency.microfinance?.id !== id) notFound();
 
-  const [{ data: notebooks }, staffResponse, clientsResponse, { data: stats }] = await Promise.all([
-    apiFetch<ApiEnvelope<Notebook[]>>(`/notebooks?agency_id=${agencyId}`),
-    apiFetch<PaginatedEnvelope<ManagedUser>>(
-      `/users?agency_id=${agencyId}&${buildListQuery(searchParams, 15, STAFF_PARAMS).slice(1)}`,
-    ),
-    apiFetch<PaginatedEnvelope<Client>>(
-      `/clients?agency_id=${agencyId}&${buildListQuery(searchParams, 15, CLIENTS_PARAMS).slice(1)}`,
-    ),
-    apiFetch<ApiEnvelope<DashboardStats>>(`/agencies/${agencyId}/stats`),
-  ]);
+  const [{ data: notebooks }, staffResponse, clientsResponse, { data: stats }] =
+    await Promise.all([
+      apiFetch<ApiEnvelope<Notebook[]>>(`/notebooks?agency_id=${agencyId}`),
+      apiFetch<PaginatedEnvelope<ManagedUser>>(
+        `/users?agency_id=${agencyId}&${buildListQuery(searchParams, 15, STAFF_PARAMS).slice(1)}`,
+      ),
+      apiFetch<PaginatedEnvelope<Client>>(
+        `/clients?agency_id=${agencyId}&${buildListQuery(searchParams, 15, CLIENTS_PARAMS).slice(1)}`,
+      ),
+      apiFetch<ApiEnvelope<DashboardStats>>(`/agencies/${agencyId}/stats`),
+    ]);
 
-  const activeNotebooks = notebooks.filter((notebook) => notebook.status === "active");
+  const activeNotebooks = notebooks.filter(
+    (notebook) => notebook.status === "active",
+  );
 
-  const notebooksByStatus = notebooks.reduce<Record<string, number>>((acc, notebook) => {
-    acc[notebook.status] = (acc[notebook.status] ?? 0) + 1;
-    return acc;
-  }, {});
+  const notebooksByStatus = notebooks.reduce<Record<string, number>>(
+    (acc, notebook) => {
+      acc[notebook.status] = (acc[notebook.status] ?? 0) + 1;
+      return acc;
+    },
+    {},
+  );
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{agency.name}</h1>
-        <p className="font-mono text-sm text-muted-foreground">{agency.code_agency}</p>
+        <p className="font-mono text-sm text-muted-foreground">
+          {agency.code_agency}
+        </p>
         <p className="mt-1 text-sm text-muted-foreground">
           {agency.address} · {agency.phone}
           {agency.currency && ` · ${agency.currency.code}`}
@@ -87,13 +110,17 @@ export default async function AgencyDetailPage(
         <Card>
           <CardHeader>
             <CardDescription>Personnel</CardDescription>
-            <CardTitle className="text-3xl">{staffResponse.meta.total}</CardTitle>
+            <CardTitle className="text-3xl">
+              {staffResponse.meta.total}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
             <CardDescription>Personnes inscrites</CardDescription>
-            <CardTitle className="text-3xl">{clientsResponse.meta.total}</CardTitle>
+            <CardTitle className="text-3xl">
+              {clientsResponse.meta.total}
+            </CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -111,8 +138,18 @@ export default async function AgencyDetailPage(
           </h2>
           <div className="flex flex-wrap gap-2">
             {Object.entries(notebooksByStatus).map(([status, count]) => (
-              <Badge key={status} variant={status === "active" ? "success" : status === "closed" ? "destructive" : "secondary"}>
-                {NOTEBOOK_STATUS_LABELS[status as Notebook["status"]] ?? status} : {count}
+              <Badge
+                key={status}
+                variant={
+                  status === "active"
+                    ? "success"
+                    : status === "closed"
+                      ? "destructive"
+                      : "secondary"
+                }
+              >
+                {NOTEBOOK_STATUS_LABELS[status as Notebook["status"]] ?? status}{" "}
+                : {count}
               </Badge>
             ))}
           </div>
@@ -121,10 +158,15 @@ export default async function AgencyDetailPage(
 
       <div>
         <div className="mb-3 flex items-center justify-between gap-4">
-          <h2 className="text-lg font-medium tracking-tight">Personnel ({staffResponse.meta.total})</h2>
-          <Link href="/utilisateurs/nouveau" className={buttonVariants({ variant: "outline", size: "sm" })}>
+          <h2 className="text-lg font-medium tracking-tight">
+            Personnel ({staffResponse.meta.total})
+          </h2>
+          <Link
+            href="/personnels/nouveau"
+            className={buttonVariants({ variant: "default", size: "sm" })}
+          >
             <PlusIcon />
-            Nouvel utilisateur
+            Nouveau personnel
           </Link>
         </div>
         <AgencyPersonnelTable
@@ -137,11 +179,16 @@ export default async function AgencyDetailPage(
       </div>
 
       <div>
-        <h2 className="mb-3 text-lg font-medium tracking-tight">Clients ({clientsResponse.meta.total})</h2>
+        <h2 className="mb-3 text-lg font-medium tracking-tight">
+          Clients ({clientsResponse.meta.total})
+        </h2>
         <ClientsTable
           clients={clientsResponse.data}
           meta={clientsResponse.meta}
-          initialSearch={currentSearchValue(searchParams, CLIENTS_PARAMS.search)}
+          initialSearch={currentSearchValue(
+            searchParams,
+            CLIENTS_PARAMS.search,
+          )}
           paramNames={CLIENTS_PARAMS}
         />
       </div>

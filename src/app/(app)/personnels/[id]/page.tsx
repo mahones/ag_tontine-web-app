@@ -17,7 +17,7 @@ export const metadata = {
  * Super Admin / Chef Agence edit their own staff's contact info only, through the
  * scoped /microfinance or /agency endpoint (see UpdateManagedUserRequest server-side).
  */
-export default async function EditUserPage(props: PageProps<"/utilisateurs/[id]">) {
+export default async function EditUserPage(props: PageProps<"/personnels/[id]">) {
   const caller = await requireUser();
   const dev = isDeveloper(caller);
   const canManage = hasPermission(caller, "manage_users");
@@ -40,12 +40,12 @@ export default async function EditUserPage(props: PageProps<"/utilisateurs/[id]"
       apiFetch<ApiEnvelope<Role[]>>("/roles"),
     ]);
 
-    // A Développeur has no flat "/utilisateurs" list of their own (see
-    // UtilisateursPage), so editing staff reached from an agency's detail page
-    // must return there instead of falling back to "/utilisateurs" and
+    // A Développeur has no flat "/personnels" list of their own (see
+    // PersonnelsPage), so editing staff reached from an agency's detail page
+    // must return there instead of falling back to "/personnels" and
     // bouncing straight to "/microfinances".
     const { from } = await props.searchParams;
-    const backHref = typeof from === "string" && from.startsWith("/") && !from.startsWith("//") ? from : "/utilisateurs";
+    const backHref = typeof from === "string" && from.startsWith("/") && !from.startsWith("//") ? from : "/personnels";
 
     const boundUpdate = updateUserAction.bind(null, user.id, backHref);
 
@@ -77,7 +77,7 @@ export default async function EditUserPage(props: PageProps<"/utilisateurs/[id]"
   }
 
   // No scoped "show one user" endpoint exists for Super Admin/Chef Agence — reuse
-  // the same list endpoint the /utilisateurs page already scopes to their agency
+  // the same list endpoint the /personnels page already scopes to their agency
   // or microfinance, and pick the target out of it.
   const endpoint = isMicrofinanceOwner(caller) ? "/microfinance/users" : "/agency/users";
   const { data: users } = await apiFetch<ApiEnvelope<ManagedUser[]>>(endpoint);
