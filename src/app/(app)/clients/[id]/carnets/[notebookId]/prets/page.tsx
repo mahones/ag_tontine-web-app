@@ -13,9 +13,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { ApiEnvelope, Loan, Notebook } from "@/lib/types";
-import { LOAN_STATUS_LABELS, LOAN_TYPE_LABELS } from "./schema";
+import { LOAN_STATUS_BADGE_VARIANT, LOAN_STATUS_LABELS, LOAN_TYPE_LABELS } from "./schema";
 import { LoanCreateForm } from "./loan-create-form";
-import { createLoanAction } from "./actions";
+import { LoanApproveButton } from "./loan-approve-button";
+import { createLoanAction, updateLoanStatusAction } from "./actions";
 
 export const metadata = {
   title: "Prêts — Tontine",
@@ -37,9 +38,11 @@ export default async function LoansPage(props: PageProps<"/clients/[id]/carnets/
   }
 
   const { data: loans } = await apiFetch<ApiEnvelope<Loan[]>>(`/loans/notebook/${notebookId}`);
-  const hasOpenLoan = loans.some((loan) => OPEN_STATUSES.includes(loan.status));
+  const openLoan = loans.find((loan) => OPEN_STATUSES.includes(loan.status)) ?? null;
   const canSubmit = hasPermission(user, "submit_loan");
+  const canApprove = hasPermission(user, "approve_loan");
   const boundCreate = createLoanAction.bind(null, notebookId, id);
+  const boundUpdateStatus = openLoan ? updateLoanStatusAction.bind(null, openLoan.id, id, notebookId) : null;
 
   return (
     <div className="space-y-8">
@@ -48,7 +51,7 @@ export default async function LoansPage(props: PageProps<"/clients/[id]/carnets/
       </div>
 
       {canSubmit ? (
-        hasOpenLoan ? (
+        openLoan ? (
           <p className="text-sm text-muted-foreground">
             Ce carnet a déjà un prêt en attente ou actif — aucun nouveau prêt ne peut être soumis
             tant qu&apos;il n&apos;est pas soldé.
@@ -63,7 +66,12 @@ export default async function LoansPage(props: PageProps<"/clients/[id]/carnets/
       )}
 
       <div>
-        <h2 className="mb-3 text-lg font-medium tracking-tight">Historique ({loans.length})</h2>
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-4">
+          <h2 className="text-lg font-medium tracking-tight">Historique ({loans.length})</h2>
+          {canApprove && openLoan?.status === "pending" && boundUpdateStatus && (
+            <LoanApproveButton onSubmit={boundUpdateStatus} />
+          )}
+        </div>
         <div className="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
@@ -96,7 +104,7 @@ export default async function LoansPage(props: PageProps<"/clients/[id]/carnets/
                     <TableCell>{loan.file_fees}</TableCell>
                     <TableCell>{loan.agency_gain}</TableCell>
                     <TableCell>
-                      <Badge variant={loan.status === "active" ? "success" : "secondary"}>
+                      <Badge variant={LOAN_STATUS_BADGE_VARIANT[loan.status]}>
                         {LOAN_STATUS_LABELS[loan.status]}
                       </Badge>
                     </TableCell>

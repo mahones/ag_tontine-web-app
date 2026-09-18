@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { WalletIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/lib/auth";
 import { apiFetch, ApiError } from "@/lib/api";
@@ -13,9 +14,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { ApiEnvelope, Collection, MonthlyContribution, Notebook } from "@/lib/types";
+import type { ApiEnvelope, Collection, Loan, MonthlyContribution, Notebook } from "@/lib/types";
 import { CollectionCreateForm } from "./collection-create-form";
 import { createCollectionAction } from "./actions";
+import { LoanActionDialog } from "../prets/loan-action-dialog";
+import { createLoanAction, updateLoanStatusAction } from "../prets/actions";
+
+const OPEN_LOAN_STATUSES: Loan["status"][] = ["pending", "active"];
 
 export const metadata = {
   title: "Cotisations — Tontine",
@@ -50,16 +55,41 @@ export default async function CollectionsPage(
   const { data: collections } = await apiFetch<ApiEnvelope<Collection[]>>(
     `/collections/notebook/${notebookId}?month=${selectedMonth}`,
   );
+  const { data: loans } = await apiFetch<ApiEnvelope<Loan[]>>(`/loans/notebook/${notebookId}`);
+  const openLoan = loans.find((loan) => OPEN_LOAN_STATUSES.includes(loan.status)) ?? null;
   const canRegister = hasPermission(user, "register_contribution_agence");
+  const canSubmitLoan = hasPermission(user, "submit_loan");
+  const canApproveLoan = hasPermission(user, "approve_loan");
   const boundCreate = createCollectionAction.bind(null, notebookId, id);
+  const boundCreateLoan = createLoanAction.bind(null, notebookId, id);
+  const boundUpdateLoanStatus = openLoan
+    ? updateLoanStatusAction.bind(null, openLoan.id, id, notebookId)
+    : null;
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Cotisations — Carnet {notebook.notebook_number}</h1>
-        <p className="text-sm text-muted-foreground">
-          Cotisation mensuelle actuelle : {notebook.contribution_amount}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Cotisations — Carnet {notebook.notebook_number}</h1>
+          <p className="text-sm text-muted-foreground">
+            Cotisation mensuelle actuelle : {notebook.contribution_amount}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <LoanActionDialog
+            clientId={id}
+            notebookId={notebookId}
+            canSubmit={canSubmitLoan}
+            canApprove={canApproveLoan}
+            openLoan={openLoan}
+            onSubmitLoan={boundCreateLoan}
+            onUpdateStatus={boundUpdateLoanStatus}
+          />
+          <Link href={`/clients/${id}/carnets/${notebookId}/retraits`} className={buttonVariants({ variant: "outline" })}>
+            <WalletIcon />
+            Retrait
+          </Link>
+        </div>
       </div>
 
       {isCurrentMonth ? (

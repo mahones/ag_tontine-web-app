@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Building2Icon,
   CoinsIcon,
+  HandCoinsIcon,
   KeyRoundIcon,
   LandmarkIcon,
   LayoutDashboardIcon,
@@ -30,6 +31,7 @@ const ICONS: Record<NavIcon, LucideIcon> = {
   prospects: UserPlusIcon,
   personnels: UsersIcon,
   clients: UserRoundIcon,
+  prets: HandCoinsIcon,
   synchronisation: RefreshCwIcon,
 };
 

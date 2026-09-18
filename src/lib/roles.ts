@@ -25,6 +25,12 @@ export function isChefAgence(user: Pick<AuthUser, "role">): boolean {
   return user.role?.level === ROLE_LEVEL.CHEF_AGENCE;
 }
 
+/** Gestionnaire and Caissier share ROLE_LEVEL.GESTIONNAIRE_OU_CAISSIER — level alone
+ * can't tell them apart, so this checks the role name directly. */
+export function isCaissier(user: Pick<AuthUser, "role">): boolean {
+  return user.role?.name === "Caissier";
+}
+
 /** Level 4 alone isn't quite enough (mirrors the backend's own is_agent flag on the model). */
 export function isAgent(user: Pick<AuthUser, "role" | "is_agent">): boolean {
   return user.role?.level === ROLE_LEVEL.AGENT && user.is_agent === true;

@@ -42,3 +42,15 @@ export const LOAN_STATUS_LABELS: Record<
   closed: "Clôturé",
   rejected: "Rejeté",
 };
+
+export const LOAN_STATUS_BADGE_VARIANT: Record<
+  keyof typeof LOAN_STATUS_LABELS,
+  "warning" | "success" | "destructive" | "secondary"
+> = {
+  pending: "warning",
+  approved: "secondary",
+  active: "success",
+  gains_remaining: "secondary",
+  closed: "destructive",
+  rejected: "destructive",
+};

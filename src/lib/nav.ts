@@ -13,6 +13,7 @@ export type NavIcon =
   | "prospects"
   | "personnels"
   | "clients"
+  | "prets"
   | "synchronisation";
 
 export type NavItem = {
@@ -57,6 +58,14 @@ export function getNavItems(user: AuthUser): NavItem[] {
   // existing client detail page (/clients/{id}) is still used to view one.
   if (!isDeveloper(user) && hasPermission(user, "view_clients") && !isAgent(user)) {
     items.push({ href: "/clients", label: "Clients", icon: "clients" });
+  }
+
+  // Développeur has no direct loans list either (same reasoning as Personnel/Clients
+  // above): they reach a carnet's loans by drilling into a microfinance's agencies
+  // instead. Excluded explicitly since hasPermission() always returns true for a
+  // Développeur (level 0 bypasses every check).
+  if (!isDeveloper(user) && hasPermission(user, "see_loans")) {
+    items.push({ href: "/prets", label: "Prêts", icon: "prets" });
   }
 
   if (isAgent(user)) {

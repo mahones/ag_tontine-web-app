@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/lib/auth";
 import { apiFetch, ApiError } from "@/lib/api";
-import { hasPermission } from "@/lib/permissions";
 import {
   Table,
   TableBody,
@@ -12,19 +11,17 @@ import {
 } from "@/components/ui/table";
 import type { ApiEnvelope, Loan, Repayment } from "@/lib/types";
 import { LOAN_STATUS_LABELS, LOAN_TYPE_LABELS } from "../schema";
-import { LoanStatusForm } from "../loan-status-form";
-import { updateLoanStatusAction } from "../actions";
 import { RepaymentCreateForm } from "./repayment-create-form";
 import { createRepaymentAction } from "./actions";
 
 export const metadata = {
-  title: "Détail prêt — Tontine",
+  title: "Remboursements — Tontine",
 };
 
 export default async function LoanDetailPage(
   props: PageProps<"/clients/[id]/carnets/[notebookId]/prets/[loanId]">,
 ) {
-  const user = await requirePermission("see_loans");
+  await requirePermission("see_loans");
   const { id, notebookId, loanId } = await props.params;
 
   let loan: Loan;
@@ -47,13 +44,14 @@ export default async function LoanDetailPage(
   const totalDue = Number(loan.amount_loaned) + Number(loan.file_fees);
   const remaining = Math.max(0, totalDue - totalPaid);
 
-  const boundUpdate = updateLoanStatusAction.bind(null, loan.id, id, notebookId);
   const boundCreateRepayment = createRepaymentAction.bind(null, loan.id, id, notebookId);
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Prêt {LOAN_TYPE_LABELS[loan.type_loan]}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Remboursements — Prêt {LOAN_TYPE_LABELS[loan.type_loan]}
+        </h1>
         <p className="text-sm text-muted-foreground">
           Montant prêté {loan.amount_loaned} · Frais de dossier {loan.file_fees} · Gain agence{" "}
           {loan.agency_gain} · Statut actuel : {LOAN_STATUS_LABELS[loan.status]}
@@ -63,18 +61,10 @@ export default async function LoanDetailPage(
         </p>
       </div>
 
-      {hasPermission(user, "approve_loan") ? (
-        <LoanStatusForm onSubmit={boundUpdate} />
-      ) : (
-        <p className="text-sm text-muted-foreground">
-          Vous n&apos;avez pas la permission d&apos;approuver ou de rejeter ce prêt.
-        </p>
-      )}
-
       <RepaymentCreateForm onSubmit={boundCreateRepayment} />
 
       <div>
-        <h2 className="mb-3 text-lg font-medium tracking-tight">Remboursements ({repayments.length})</h2>
+        <h2 className="mb-3 text-lg font-medium tracking-tight">Historique ({repayments.length})</h2>
         <div className="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>

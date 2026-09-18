@@ -73,7 +73,7 @@ export function PendingLoansTable({
                 <TableCell>{LOAN_TYPE_LABELS[loan.type_loan]}</TableCell>
                 <TableCell>{loan.amount_loaned}</TableCell>
                 <TableCell>
-                  <Badge variant="secondary">En attente</Badge>
+                  <Badge variant="warning">En attente</Badge>
                 </TableCell>
                 <TableCell>
                   <PendingLoanActions loan={loan} />
