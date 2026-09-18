@@ -4,129 +4,319 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Design system E-Tontine — voir le design system publié (Sidebar, Dashboard, DataTable,
+ * StatCard, StatusBadge, Toast, Login, FormCreate, ErrorPage, ClientSheet, CotisationGrid).
+ * Trois couleurs de marque fixes dans les deux thèmes : primary #eb6d1a, secondary #0d3f62,
+ * tertiary #f49817. Tout le reste (surfaces, encre, statuts) passe par des tokens sémantiques
+ * qui varient entre thème clair et sombre — ne jamais réintroduire une couleur brute ailleurs
+ * que dans ce fichier.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--surface);
+  --color-foreground: var(--ink);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-sidebar: var(--sidebar-surface);
+  --color-sidebar-foreground: var(--sidebar-ink);
+  --color-sidebar-primary: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-ink-active);
+  --color-sidebar-accent: var(--sidebar-surface-raised);
+  --color-sidebar-accent-foreground: var(--sidebar-ink-active);
   --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
+  --color-sidebar-ring: var(--focus-ring);
+  --color-sidebar-surface: var(--sidebar-surface);
+  --color-sidebar-surface-raised: var(--sidebar-surface-raised);
+  --color-sidebar-ink: var(--sidebar-ink);
+  --color-sidebar-ink-muted: var(--sidebar-ink-muted);
+  --color-sidebar-ink-active: var(--sidebar-ink-active);
+  --color-sidebar-accent-bar: var(--sidebar-accent);
+
   --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--ink-faint);
+
+  --color-ring: var(--focus-ring);
+  --color-focus-ring: var(--focus-ring);
+  --color-input: var(--border-strong);
   --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-tertiary-foreground: var(--tertiary-foreground);
+  --color-border-strong: var(--border-strong);
+  --color-destructive: var(--danger);
+  --color-destructive-foreground: var(--danger-foreground);
+  --color-accent: var(--primary-subtle);
+  --color-accent-foreground: var(--primary-subtle-foreground);
+  --color-muted: var(--surface-sunken);
+  --color-muted-foreground: var(--ink-muted);
+
   --color-tertiary: var(--tertiary);
-  --color-secondary-foreground: var(--secondary-foreground);
+  --color-tertiary-hover: var(--tertiary-hover);
+  --color-tertiary-active: var(--tertiary-active);
+  --color-tertiary-foreground: var(--tertiary-foreground);
+  --color-tertiary-subtle: var(--tertiary-subtle);
+  --color-tertiary-subtle-foreground: var(--tertiary-subtle-foreground);
+
   --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-secondary-active: var(--secondary-active);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary-subtle: var(--secondary-subtle);
+  --color-secondary-subtle-foreground: var(--secondary-subtle-foreground);
+
   --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-primary-subtle-foreground: var(--primary-subtle-foreground);
+  --color-primary-border: var(--primary-border);
+
+  --color-popover: var(--surface-overlay);
+  --color-popover-foreground: var(--ink);
+  --color-card: var(--surface-raised);
+  --color-card-foreground: var(--ink);
+
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-ink-inverse: var(--ink-inverse);
+
+  --color-success: var(--success);
+  --color-success-hover: var(--success-hover);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-subtle: var(--success-subtle);
+  --color-success-subtle-foreground: var(--success-subtle-foreground);
+
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-danger-subtle-foreground: var(--danger-subtle-foreground);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-warning-subtle-foreground: var(--warning-subtle-foreground);
+
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-info-subtle: var(--info-subtle);
+  --color-info-subtle-foreground: var(--info-subtle-foreground);
+
+  --color-neutral-status: var(--neutral-status);
+  --color-neutral-status-subtle: var(--neutral-status-subtle);
+  --color-neutral-status-subtle-foreground: var(--neutral-status-subtle-foreground);
+
+  --color-carnet-cell-paid: var(--carnet-cell-paid);
+  --color-carnet-cell-paid-foreground: var(--carnet-cell-paid-foreground);
+  --color-carnet-cell-empty: var(--carnet-cell-empty);
+  --color-carnet-cell-border: var(--carnet-cell-border);
+  --color-carnet-cell-agency: var(--carnet-cell-agency);
+  --color-carnet-cell-agency-foreground: var(--carnet-cell-agency-foreground);
+  --color-carnet-cell-today: var(--carnet-cell-today);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-4xl: 28px;
+
+  --shadow-sm: var(--shadow-sm-token);
+  --shadow-md: var(--shadow-md-token);
+  --shadow-lg: var(--shadow-lg-token);
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  /* Charte graphique : principale (CTA/liens), secondaire (bleu marine), troisième (accent
-     ambre) — voir CHRT GRPHIUE.md à la racine du monorepo. */
+  /* Surfaces et encre */
+  --surface: #fbfbfb;
+  --surface-raised: #ffffff;
+  --surface-sunken: #f6f6f6;
+  --surface-overlay: #ffffff;
+  --border: #e1e2e3;
+  --border-strong: #c9cbcd;
+  --ink: #1b1c1d;
+  --ink-muted: #616569;
+  --ink-faint: #a1a5a8;
+  --ink-inverse: #ffffff;
+
+  /* Marque — fixe dans les deux thèmes */
   --primary: #eb6d1a;
+  --primary-hover: #d46217;
+  --primary-active: #bc5715;
   --primary-foreground: #ffffff;
+  --primary-subtle: #faf5f2;
+  --primary-subtle-foreground: #a54a0e;
+  --primary-border: #ecaa7e;
+
   --secondary: #0d3f62;
+  --secondary-hover: #2a5675;
+  --secondary-active: #0b3654;
   --secondary-foreground: #ffffff;
+  --secondary-subtle: #f3f7f9;
+  --secondary-subtle-foreground: #0a334f;
+
   --tertiary: #f49817;
+  --tertiary-hover: #dc8915;
+  --tertiary-active: #c37a12;
   --tertiary-foreground: #0d3f62;
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  /* Chart series: chart-1 cotisations, chart-2 prêts — validated for CVD-safe
-     adjacency against this light surface (see dataviz skill's validate_palette.js). */
+  --tertiary-subtle: #faf7f2;
+  --tertiary-subtle-foreground: #865106;
+
+  /* Statuts métier */
+  --success: #177c4e;
+  --success-hover: #157248;
+  --success-foreground: #ffffff;
+  --success-subtle: #f3f9f6;
+  --success-subtle-foreground: #136942;
+
+  --danger: #b8253c;
+  --danger-hover: #a92237;
+  --danger-foreground: #ffffff;
+  --danger-subtle: #f9f3f4;
+  --danger-subtle-foreground: #961e31;
+
+  --warning: #eb6d1a;
+  --warning-foreground: #0a0a0b;
+  --warning-subtle: #faf5f2;
+  --warning-subtle-foreground: #7f390b;
+
+  --info: #0d3f62;
+  --info-foreground: #ffffff;
+  --info-subtle: #f3f7f9;
+  --info-subtle-foreground: #0a334f;
+
+  --neutral-status: #616569;
+  --neutral-status-subtle: #ededed;
+  --neutral-status-subtle-foreground: #484c4e;
+
+  /* Barre latérale — marine profond, identique en clair et sombre */
+  --sidebar-surface: #06263d;
+  --sidebar-surface-raised: #072d47;
+  --sidebar-border: #4c6373;
+  --sidebar-ink: #dfeaf1;
+  --sidebar-ink-muted: #83bee7;
+  --sidebar-ink-active: #ffffff;
+  --sidebar-accent: #eb6d1a;
+
+  --focus-ring: #eb6d1a;
+
+  /* Séries de graphique */
   --chart-1: #eb6d1a;
-  --chart-2: #1f6fa8;
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.3125rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --chart-2: #0d3f62;
+  --chart-3: #177c4e;
+  --chart-4: #b8253c;
+
+  /* Grille de cotisation (carnet) */
+  --carnet-cell-paid: #177c4e;
+  --carnet-cell-paid-foreground: #ffffff;
+  --carnet-cell-empty: #ffffff;
+  --carnet-cell-border: #7e8488;
+  --carnet-cell-agency: #f49817;
+  --carnet-cell-agency-foreground: #0d3f62;
+  --carnet-cell-today: #eb6d1a;
+
+  --radius: 8px;
+
+  --shadow-sm-token: 0 1px 2px rgba(2, 13, 21, 0.06);
+  --shadow-md-token: 0 4px 12px rgba(2, 13, 21, 0.1);
+  --shadow-lg-token: 0 12px 32px rgba(2, 13, 21, 0.16);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  --surface: #0e0f10;
+  --surface-raised: #1b1c1d;
+  --surface-sunken: #141617;
+  --surface-overlay: #1b1c1d;
+  --border: #303234;
+  --border-strong: #484c4e;
+  --ink: #f6f6f6;
+  --ink-muted: #a1a5a8;
+  --ink-faint: #616569;
+  --ink-inverse: #ffffff;
+
   --primary: #eb6d1a;
+  --primary-hover: #d46217;
+  --primary-active: #bc5715;
   --primary-foreground: #ffffff;
+  --primary-subtle: #351703;
+  --primary-subtle-foreground: #ecaa7e;
+  --primary-border: #a54a0e;
+
   --secondary: #0d3f62;
+  --secondary-hover: #2a5675;
+  --secondary-active: #0b3654;
   --secondary-foreground: #ffffff;
+  --secondary-subtle: #052033;
+  --secondary-subtle-foreground: #83bee7;
+
   --tertiary: #f49817;
+  --tertiary-hover: #dc8915;
+  --tertiary-active: #c37a12;
   --tertiary-foreground: #0d3f62;
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  /* Chart series: chart-1 cotisations, chart-2 prêts — re-stepped (not the light
-     values) to clear the dark-mode lightness band; validated with validate_palette.js. */
-  --chart-1: #d9600f;
-  --chart-2: #3a8ac2;
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --tertiary-subtle: #382100;
+  --tertiary-subtle-foreground: #f0bf7a;
+
+  --success: #1a8f5a;
+  --success-hover: #157248;
+  --success-foreground: #ffffff;
+  --success-subtle: #07311e;
+  --success-subtle-foreground: #88e2b9;
+
+  --danger: #d6304a;
+  --danger-hover: #a92237;
+  --danger-foreground: #ffffff;
+  --danger-subtle: #30080e;
+  --danger-subtle-foreground: #e18997;
+
+  --warning: #eb6d1a;
+  --warning-foreground: #0a0a0b;
+  --warning-subtle: #351703;
+  --warning-subtle-foreground: #ecaa7e;
+
+  --info: #0d3f62;
+  --info-foreground: #ffffff;
+  --info-subtle: #052033;
+  --info-subtle-foreground: #83bee7;
+
+  --neutral-status: #a1a5a8;
+  --neutral-status-subtle: #303234;
+  --neutral-status-subtle-foreground: #c9cbcd;
+
+  --sidebar-surface: #052033;
+  --sidebar-surface-raised: #141617;
+  --sidebar-border: #506370;
+  --sidebar-ink: #e1e2e3;
+  --sidebar-ink-muted: #a1a5a8;
+  --sidebar-ink-active: #ffffff;
+  --sidebar-accent: #eb6d1a;
+
+  --focus-ring: #eb6d1a;
+
+  --chart-1: #eb6d1a;
+  --chart-2: #0d3f62;
+  --chart-3: #52e0a0;
+  --chart-4: #dd556a;
+
+  --carnet-cell-paid: #1a8f5a;
+  --carnet-cell-paid-foreground: #ffffff;
+  --carnet-cell-empty: #1b1c1d;
+  --carnet-cell-border: #616569;
+  --carnet-cell-agency: #f49817;
+  --carnet-cell-agency-foreground: #0d3f62;
+  --carnet-cell-today: #eb6d1a;
+
+  --shadow-sm-token: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md-token: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg-token: 0 12px 32px rgba(0, 0, 0, 0.6);
 }
 
 @layer base {

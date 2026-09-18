@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/table";
 import type { PaginationMeta, Prospect } from "@/lib/types";
 import { formatPersonName } from "@/lib/format-name";
+import { formatAmount } from "@/lib/format-currency";
 import { useListQuery } from "@/hooks/use-list-query";
 
 const STATUS_LABELS: Record<Prospect["status"], string> = {
@@ -26,11 +27,11 @@ const STATUS_LABELS: Record<Prospect["status"], string> = {
   converted: "Converti",
 };
 
-const STATUS_BADGE_VARIANT: Record<Prospect["status"], "default" | "secondary" | "destructive"> = {
-  pending: "secondary",
-  approved: "default",
+const STATUS_BADGE_VARIANT: Record<Prospect["status"], "warning" | "tertiary" | "destructive" | "success"> = {
+  pending: "warning",
+  approved: "tertiary",
   rejected: "destructive",
-  converted: "default",
+  converted: "success",
 };
 
 export function AgentProspectsTable({
@@ -83,7 +84,7 @@ export function AgentProspectsTable({
                   </TableCell>
                   <TableCell>{prospect.phone}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{prospect.address}</TableCell>
-                  <TableCell>{prospect.contribution_amount}</TableCell>
+                  <TableCell className="font-mono">{formatAmount(prospect.contribution_amount)}</TableCell>
                   <TableCell>
                     <Badge variant={STATUS_BADGE_VARIANT[prospect.status]}>
                       {STATUS_LABELS[prospect.status]}

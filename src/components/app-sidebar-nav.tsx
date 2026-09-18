@@ -39,7 +39,7 @@ export function AppSidebarNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-1 overflow-x-auto p-2 md:flex-col md:gap-0.5 md:overflow-visible md:p-0 md:py-2">
+    <nav className="flex gap-1 overflow-x-auto px-2 py-2 md:flex-col md:gap-0.5 md:overflow-visible md:px-2 md:py-0">
       {items.map((item) => {
         const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
         const Icon = ICONS[item.icon];
@@ -48,13 +48,13 @@ export function AppSidebarNav({ items }: { items: NavItem[] }) {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors md:w-full md:rounded-none md:px-4",
+              "relative flex shrink-0 items-center gap-2.5 rounded-md py-2 pr-2.5 pl-3 text-sm transition-colors md:w-full",
               isActive
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-[#F6BA93] hover:text-foreground",
+                ? "bg-sidebar-surface-raised font-medium text-sidebar-ink-active before:absolute before:top-1 before:bottom-1 before:left-0 before:w-[3px] before:rounded-full before:bg-sidebar-accent-bar"
+                : "text-sidebar-ink hover:bg-sidebar-surface-raised hover:text-sidebar-ink-active",
             )}
           >
-            <Icon className="size-4 shrink-0" />
+            <Icon className={cn("size-4 shrink-0", isActive ? "text-sidebar-accent-bar" : "text-sidebar-ink-muted")} />
             {item.label}
           </Link>
         );

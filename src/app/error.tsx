@@ -18,7 +18,7 @@ export default function Error({
 
   return (
     <ErrorPage
-      code="Erreur 500"
+      code="500"
       tone="destructive"
       title="Une erreur est survenue"
       description="Quelque chose s'est mal passé de notre côté. Vous pouvez réessayer, ou revenir au tableau de bord."

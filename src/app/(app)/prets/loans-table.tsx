@@ -24,11 +24,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Loan, PaginationMeta } from "@/lib/types";
+import { formatAmount } from "@/lib/format-currency";
 import { useListQuery } from "@/hooks/use-list-query";
 import {
   LOAN_STATUS_BADGE_VARIANT,
   LOAN_STATUS_LABELS,
   LOAN_TYPE_LABELS,
+  computeMontantADecaisser,
 } from "@/app/(app)/clients/[id]/carnets/[notebookId]/prets/schema";
 import { PendingLoanActions } from "@/app/(app)/dashboard/pending-loan-actions";
 import { LoanDisburseAction } from "./loan-disburse-action";
@@ -152,7 +154,7 @@ export function LoansTable({
                     </TableCell>
                   )}
                   <TableCell>{LOAN_TYPE_LABELS[loan.type_loan]}</TableCell>
-                  <TableCell>{loan.amount_loaned}</TableCell>
+                  <TableCell className="font-mono">{formatAmount(computeMontantADecaisser(loan))}</TableCell>
                   <TableCell>
                     <Badge variant={LOAN_STATUS_BADGE_VARIANT[loan.status]}>
                       {LOAN_STATUS_LABELS[loan.status]}

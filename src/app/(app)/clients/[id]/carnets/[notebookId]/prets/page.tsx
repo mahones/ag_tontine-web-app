@@ -14,9 +14,15 @@ import {
 } from "@/components/ui/table";
 import type { ApiEnvelope, Client, Loan, Notebook } from "@/lib/types";
 import { formatPersonName } from "@/lib/format-name";
+import { formatAmount } from "@/lib/format-currency";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ClientBadge } from "@/components/client-badge";
-import { LOAN_STATUS_BADGE_VARIANT, LOAN_STATUS_LABELS, LOAN_TYPE_LABELS } from "./schema";
+import {
+  LOAN_STATUS_BADGE_VARIANT,
+  LOAN_STATUS_LABELS,
+  LOAN_TYPE_LABELS,
+  computeMontantADecaisser,
+} from "./schema";
 import { LoanCreateForm } from "./loan-create-form";
 import { LoanApproveButton } from "./loan-approve-button";
 import { LoanDisburseButton } from "./loan-disburse-button";
@@ -101,7 +107,7 @@ export default async function LoansPage(props: PageProps<"/clients/[id]/carnets/
               <TableRow>
                 <TableHead>Date</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead>Montant prêté</TableHead>
+                <TableHead>Montant à décaisser</TableHead>
                 <TableHead>Frais de dossier</TableHead>
                 <TableHead>Gain agence</TableHead>
                 <TableHead>Statut</TableHead>
@@ -123,9 +129,9 @@ export default async function LoansPage(props: PageProps<"/clients/[id]/carnets/
                       </Link>
                     </TableCell>
                     <TableCell>{LOAN_TYPE_LABELS[loan.type_loan]}</TableCell>
-                    <TableCell>{loan.amount_loaned}</TableCell>
-                    <TableCell>{loan.file_fees}</TableCell>
-                    <TableCell>{loan.agency_gain}</TableCell>
+                    <TableCell className="font-mono">{formatAmount(computeMontantADecaisser(loan))}</TableCell>
+                    <TableCell className="font-mono">{formatAmount(loan.file_fees)}</TableCell>
+                    <TableCell className="font-mono">{formatAmount(loan.agency_gain)}</TableCell>
                     <TableCell>
                       <Badge variant={LOAN_STATUS_BADGE_VARIANT[loan.status]}>
                         {LOAN_STATUS_LABELS[loan.status]}

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DashboardMonthlyStats } from "@/lib/types";
+import { formatAmount } from "@/lib/format-currency";
 import { DashboardYearSelect } from "./dashboard-year-select";
 
 const MONTH_LABELS = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
@@ -73,11 +74,11 @@ export function DashboardMonthlyChart({ stats }: { stats: DashboardMonthlyStats 
                       </p>
                       <p className="flex items-center gap-1.5">
                         <span className="size-2 shrink-0 rounded-[2px] bg-chart-1" />
-                        Cotisations : <span className="font-medium text-foreground">{numberFormatter.format(cotisation)}</span>
+                        Cotisations : <span className="font-medium text-foreground">{formatAmount(cotisation)}</span>
                       </p>
                       <p className="flex items-center gap-1.5">
                         <span className="size-2 shrink-0 rounded-[2px] bg-chart-2" />
-                        Prêts : <span className="font-medium text-foreground">{numberFormatter.format(loan)}</span>
+                        Prêts : <span className="font-medium text-foreground">{formatAmount(loan)}</span>
                       </p>
                     </div>
                   </div>
@@ -99,12 +100,12 @@ export function DashboardMonthlyChart({ stats }: { stats: DashboardMonthlyStats 
           <div className="flex items-center gap-2 text-sm">
             <span className="size-2.5 shrink-0 rounded-[2px] bg-chart-1" />
             <span className="text-muted-foreground">Cotisations</span>
-            <span className="font-medium">{numberFormatter.format(totalCotisations)}</span>
+            <span className="font-medium">{formatAmount(totalCotisations)}</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <span className="size-2.5 shrink-0 rounded-[2px] bg-chart-2" />
             <span className="text-muted-foreground">Prêts</span>
-            <span className="font-medium">{numberFormatter.format(totalLoans)}</span>
+            <span className="font-medium">{formatAmount(totalLoans)}</span>
           </div>
         </div>
 

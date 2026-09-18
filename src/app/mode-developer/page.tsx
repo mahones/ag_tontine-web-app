@@ -14,9 +14,9 @@ export default async function DeveloperLoginPage() {
 
   return (
     <AuthSplitLayout
-      eyebrow="Espace développeur"
-      title="Connexion"
-      description="Connexion réservée aux comptes développeur de la plateforme Tontine."
+      variant="developer"
+      title="Connexion développeur"
+      description="Accès plateforme — toutes les microfinances."
     >
       <LoginForm action={developerLoginAction} />
     </AuthSplitLayout>

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import type { ApiEnvelope, Client, Collection, Loan, MonthlyContribution, Notebook } from "@/lib/types";
 import { formatPersonName } from "@/lib/format-name";
+import { formatAmount } from "@/lib/format-currency";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ClientBadge } from "@/components/client-badge";
 import { CollectionCreateForm } from "./collection-create-form";
@@ -92,7 +93,7 @@ export default async function CollectionsPage(
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Cotisations — Carnet {notebook.notebook_number}</h1>
           <p className="text-sm text-muted-foreground">
-            Cotisation mensuelle actuelle : {notebook.contribution_amount}
+            Cotisation mensuelle actuelle : {formatAmount(notebook.contribution_amount)}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -177,7 +178,7 @@ export default async function CollectionsPage(
                       {new Date(collection.created_at).toLocaleDateString("fr-FR")}
                     </TableCell>
                     <TableCell>{collection.box_number}</TableCell>
-                    <TableCell>{collection.amount}</TableCell>
+                    <TableCell className="font-mono">{formatAmount(collection.amount)}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {collection.user ? `${collection.user.first_name} ${collection.user.last_name}` : "—"}
                     </TableCell>

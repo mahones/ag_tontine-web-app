@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import type { ApiEnvelope, Client, Loan, Notebook, Repayment } from "@/lib/types";
 import { formatPersonName } from "@/lib/format-name";
+import { formatAmount } from "@/lib/format-currency";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ClientBadge } from "@/components/client-badge";
 import { LOAN_STATUS_LABELS, LOAN_TYPE_LABELS } from "../schema";
@@ -70,11 +71,11 @@ export default async function LoanDetailPage(
           Remboursements — Prêt {LOAN_TYPE_LABELS[loan.type_loan]}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Montant prêté {loan.amount_loaned} · Frais de dossier {loan.file_fees} · Gain agence{" "}
-          {loan.agency_gain} · Statut actuel : {LOAN_STATUS_LABELS[loan.status]}
+          Montant prêté {formatAmount(loan.amount_loaned)} · Frais de dossier {formatAmount(loan.file_fees)} · Gain
+          agence {formatAmount(loan.agency_gain)} · Statut actuel : {LOAN_STATUS_LABELS[loan.status]}
         </p>
         <p className="text-sm text-muted-foreground">
-          Total remboursé {totalPaid.toFixed(2)} · Solde restant (indicatif) {remaining.toFixed(2)}
+          Total remboursé {formatAmount(totalPaid)} · Solde restant (indicatif) {formatAmount(remaining)}
         </p>
       </div>
 
@@ -103,7 +104,7 @@ export default async function LoanDetailPage(
                     <TableCell className="text-sm text-muted-foreground">
                       {new Date(repayment.created_at).toLocaleDateString("fr-FR")}
                     </TableCell>
-                    <TableCell>{repayment.amount_paid}</TableCell>
+                    <TableCell className="font-mono">{formatAmount(repayment.amount_paid)}</TableCell>
                   </TableRow>
                 ))
               )}

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import type { ApiEnvelope, Client, ClientStats, Notebook } from "@/lib/types";
 import { formatFirstName, formatLastName, formatPersonName } from "@/lib/format-name";
+import { formatAmount } from "@/lib/format-currency";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ClientBadge } from "@/components/client-badge";
 import { ClientEditDialog } from "../client-edit-dialog";
@@ -33,8 +34,6 @@ const NOTEBOOK_STATUS_LABELS: Record<Notebook["status"], string> = {
   cancelled: "Annulé",
   closed: "Clôturé",
 };
-
-const numberFormatter = new Intl.NumberFormat("fr-FR");
 
 export default async function ClientDetailPage(props: PageProps<"/clients/[id]">) {
   const user = await requirePermission("view_clients");
@@ -100,19 +99,19 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
         <Card>
           <CardHeader>
             <CardDescription>Sommes disponibles</CardDescription>
-            <CardTitle className="text-3xl">{numberFormatter.format(Number(stats.available_balance))}</CardTitle>
+            <CardTitle className="font-mono text-3xl tabular-nums">{formatAmount(stats.available_balance)}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
             <CardDescription>Retraits</CardDescription>
-            <CardTitle className="text-3xl">{numberFormatter.format(Number(stats.withdrawals.total))}</CardTitle>
+            <CardTitle className="font-mono text-3xl tabular-nums">{formatAmount(stats.withdrawals.total)}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader>
             <CardDescription>Prêts</CardDescription>
-            <CardTitle className="text-3xl">{numberFormatter.format(Number(stats.loans.total))}</CardTitle>
+            <CardTitle className="font-mono text-3xl tabular-nums">{formatAmount(stats.loans.total)}</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -170,7 +169,7 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
                   <TableRow key={notebook.id}>
                     <TableCell className="font-mono text-xs">{notebook.notebook_number}</TableCell>
                     <TableCell>{notebook.year}</TableCell>
-                    <TableCell>{notebook.contribution_amount}</TableCell>
+                    <TableCell className="font-mono">{formatAmount(notebook.contribution_amount)}</TableCell>
                     <TableCell>
                       <Badge
                         variant={

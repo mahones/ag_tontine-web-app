@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import type { ApiEnvelope, Client, Collection, Loan, Notebook, Withdrawal } from "@/lib/types";
 import { formatPersonName } from "@/lib/format-name";
+import { formatAmount } from "@/lib/format-currency";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ClientBadge } from "@/components/client-badge";
 import { WITHDRAWAL_MODE_LABELS } from "./schema";
@@ -71,7 +72,7 @@ export default async function WithdrawalsPage(props: PageProps<"/clients/[id]/ca
       <ClientBadge clientId={id} firstName={client.first_name} lastName={client.last_name} />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Retraits — Carnet {notebook.notebook_number}</h1>
-        <p className="text-sm text-muted-foreground">Montant disponible (indicatif) : {availableAmount.toFixed(2)}</p>
+        <p className="text-sm text-muted-foreground">Montant disponible (indicatif) : {formatAmount(availableAmount)}</p>
       </div>
 
       {canValidate ? (
@@ -83,7 +84,7 @@ export default async function WithdrawalsPage(props: PageProps<"/clients/[id]/ca
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">
               Ce carnet a un prêt en attente de solde de gain (gain agence :{" "}
-              {gainsRemainingLoan.agency_gain}) — le retrait normal est remplacé par le
+              {formatAmount(gainsRemainingLoan.agency_gain)}) — le retrait normal est remplacé par le
               règlement de ce gain, qui clôture le prêt.
             </p>
             <WithdrawalGainForm onSubmit={boundCreateGain} />
@@ -123,8 +124,10 @@ export default async function WithdrawalsPage(props: PageProps<"/clients/[id]/ca
                     <TableCell className="text-sm text-muted-foreground">
                       {new Date(withdrawal.created_at).toLocaleDateString("fr-FR")}
                     </TableCell>
-                    <TableCell>{withdrawal.amount}</TableCell>
-                    <TableCell>{withdrawal.agency_gain ?? "—"}</TableCell>
+                    <TableCell className="font-mono">{formatAmount(withdrawal.amount)}</TableCell>
+                    <TableCell className="font-mono">
+                      {withdrawal.agency_gain ? formatAmount(withdrawal.agency_gain) : "—"}
+                    </TableCell>
                     <TableCell>
                       {WITHDRAWAL_MODE_LABELS[withdrawal.withdrawal_mode as keyof typeof WITHDRAWAL_MODE_LABELS] ??
                         withdrawal.withdrawal_mode}

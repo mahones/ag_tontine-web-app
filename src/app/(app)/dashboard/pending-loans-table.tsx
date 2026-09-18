@@ -9,7 +9,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Loan } from "@/lib/types";
-import { LOAN_TYPE_LABELS } from "@/app/(app)/clients/[id]/carnets/[notebookId]/prets/schema";
+import { formatAmount } from "@/lib/format-currency";
+import { LOAN_TYPE_LABELS, computeMontantADecaisser } from "@/app/(app)/clients/[id]/carnets/[notebookId]/prets/schema";
 import { PendingLoanActions } from "./pending-loan-actions";
 
 /**
@@ -42,7 +43,7 @@ export function PendingLoansTable({
               <TableHead>Client</TableHead>
               {showAgencyColumn && <TableHead>Agence</TableHead>}
               <TableHead>Type</TableHead>
-              <TableHead>Montant</TableHead>
+              <TableHead>Montant à décaisser</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -71,7 +72,7 @@ export function PendingLoansTable({
                   </TableCell>
                 )}
                 <TableCell>{LOAN_TYPE_LABELS[loan.type_loan]}</TableCell>
-                <TableCell>{loan.amount_loaned}</TableCell>
+                <TableCell className="font-mono">{formatAmount(computeMontantADecaisser(loan))}</TableCell>
                 <TableCell>
                   <Badge variant="warning">En attente</Badge>
                 </TableCell>

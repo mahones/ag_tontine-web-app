@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import type { ApiEnvelope, Client, MonthlyContribution, Notebook } from "@/lib/types";
 import { formatPersonName } from "@/lib/format-name";
+import { formatAmount } from "@/lib/format-currency";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ClientBadge } from "@/components/client-badge";
 import { ContributionAmountForm } from "./contribution-amount-form";
@@ -56,10 +57,11 @@ export default async function ContributionAmountsPage(
       <ClientBadge clientId={id} firstName={client.first_name} lastName={client.last_name} />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Mises — Carnet {notebook.notebook_number}</h1>
-        <p className="text-sm text-muted-foreground">Mise actuelle : {notebook.contribution_amount}</p>
+        <p className="text-sm text-muted-foreground">Mise actuelle : {formatAmount(notebook.contribution_amount)}</p>
         {notebook.pending_contribution_amount && (
           <p className="text-sm text-muted-foreground">
-            Nouvelle mise programmée : <span className="font-medium">{notebook.pending_contribution_amount}</span> —
+            Nouvelle mise programmée :{" "}
+            <span className="font-medium">{formatAmount(notebook.pending_contribution_amount)}</span> —
             s&apos;appliquera au démarrage du prochain mois.
           </p>
         )}
@@ -94,7 +96,7 @@ export default async function ContributionAmountsPage(
                 history.map((entry) => (
                   <TableRow key={entry.id}>
                     <TableCell>{entry.month}</TableCell>
-                    <TableCell>{entry.amount}</TableCell>
+                    <TableCell className="font-mono">{formatAmount(entry.amount)}</TableCell>
                   </TableRow>
                 ))
               )}

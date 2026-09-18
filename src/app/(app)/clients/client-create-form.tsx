@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import type { Prospect } from "@/lib/types";
 import { formatPersonName } from "@/lib/format-name";
+import { formatAmount } from "@/lib/format-currency";
 import { clientCreateFormSchema, type ClientCreateFormValues } from "./schema";
 import type { ClientActionResult } from "./actions";
 
@@ -98,7 +99,8 @@ export function ClientCreateForm({ prospects, onSubmit }: ClientCreateFormProps)
 
       {selectedProspect && (
         <p className="text-sm text-muted-foreground">
-          Cotisation mensuelle : <span className="font-medium">{selectedProspect.contribution_amount}</span> (reprise
+          Cotisation mensuelle :{" "}
+          <span className="font-medium">{formatAmount(selectedProspect.contribution_amount)}</span> (reprise
           telle que déclarée par le prospect, non modifiable ici)
         </p>
       )}

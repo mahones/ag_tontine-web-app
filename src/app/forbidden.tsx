@@ -13,12 +13,12 @@ export const metadata = {
 export default function Forbidden() {
   return (
     <ErrorPage
-      code="Erreur 403"
-      tone="destructive"
+      code="403"
+      tone="tertiary"
       title="Accès refusé"
-      description="Vous n'avez pas la permission d'accéder à cette page."
+      description="Votre rôle ne permet pas d'accéder à cette page."
       actions={
-        <Link href="/dashboard" className={buttonVariants()}>
+        <Link href="/dashboard" className={buttonVariants({ variant: "tertiary" })}>
           Tableau de bord
         </Link>
       }

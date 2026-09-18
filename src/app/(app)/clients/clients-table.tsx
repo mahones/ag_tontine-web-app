@@ -49,27 +49,40 @@ export function ClientsTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nom</TableHead>
+              <TableHead>Client</TableHead>
               <TableHead>Téléphone</TableHead>
               <TableHead>Adresse</TableHead>
+              <TableHead>Agent</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {clients.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                <TableCell colSpan={5} className="py-8 text-center text-muted-foreground">
                   Aucun client trouvé.
                 </TableCell>
               </TableRow>
             ) : (
-              clients.map((client) => (
+              clients.map((client) => {
+                const name = formatPersonName(client.first_name, client.last_name);
+                const initials = `${client.first_name.charAt(0)}${client.last_name.charAt(0)}`.toUpperCase();
+                const agent = client.agents?.[0];
+                return (
                 <TableRow key={client.id}>
                   <TableCell className="font-medium">
-                    {formatPersonName(client.first_name, client.last_name)}
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-medium text-secondary-foreground">
+                        {initials}
+                      </div>
+                      {name}
+                    </div>
                   </TableCell>
                   <TableCell>{client.phone}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{client.address}</TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {agent ? formatPersonName(agent.first_name, agent.last_name) : "—"}
+                  </TableCell>
                   <TableCell>
                     <div className="flex justify-end gap-1.5">
                       <Tooltip>
@@ -91,7 +104,8 @@ export function ClientsTable({
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
+                );
+              })
             )}
           </TableBody>
         </Table>

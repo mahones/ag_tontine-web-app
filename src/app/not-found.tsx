@@ -9,7 +9,7 @@ export const metadata = {
 export default function NotFound() {
   return (
     <ErrorPage
-      code="Erreur 404"
+      code="404"
       title="Page introuvable"
       description="La page que vous cherchez n'existe pas, a été déplacée, ou vous n'y avez pas accès."
       actions={

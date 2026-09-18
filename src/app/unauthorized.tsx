@@ -13,13 +13,13 @@ export const metadata = {
 export default function Unauthorized() {
   return (
     <ErrorPage
-      code="Erreur 401"
-      tone="destructive"
-      title="Non authentifié"
-      description="Votre session a expiré ou vous n'êtes pas connecté. Veuillez vous reconnecter."
+      code="401"
+      tone="secondary"
+      title="Session expirée"
+      description="Reconnectez-vous pour continuer."
       actions={
-        <Link href="/" className={buttonVariants()}>
-          Se connecter
+        <Link href="/" className={buttonVariants({ variant: "secondary" })}>
+          Se reconnecter
         </Link>
       }
     />

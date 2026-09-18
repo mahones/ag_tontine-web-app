@@ -24,6 +24,7 @@ import {
 } from "./schema";
 import type { LoanActionResult } from "./actions";
 import type { Loan } from "@/lib/types";
+import { formatAmount } from "@/lib/format-currency";
 
 type LoanActionDialogProps = {
   clientId: string;
@@ -63,7 +64,7 @@ export function LoanActionDialog({
         {openLoan ? (
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Ce carnet a déjà un prêt {LOAN_TYPE_LABELS[openLoan.type_loan]} de {openLoan.amount_loaned}{" "}
+              Ce carnet a déjà un prêt {LOAN_TYPE_LABELS[openLoan.type_loan]} de {formatAmount(openLoan.amount_loaned)}{" "}
               — <Badge variant={LOAN_STATUS_BADGE_VARIANT[openLoan.status]}>{LOAN_STATUS_LABELS[openLoan.status]}</Badge>
               . Aucun nouveau prêt ne peut être soumis tant qu&apos;il n&apos;est pas soldé.
             </p>

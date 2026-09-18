@@ -31,21 +31,21 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
+          "--normal-bg": "var(--surface-overlay)",
+          "--normal-text": "var(--ink)",
           "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
+          "--border-radius": "var(--radius-md)",
         } as React.CSSProperties
       }
       toastOptions={{
         classNames: {
-          toast: "cn-toast shadow-lg border",
-          success:
-            "!bg-green-50 !text-green-800 !border-green-500 dark:!bg-green-950 dark:!text-green-300 dark:!border-green-700",
-          error:
-            "!bg-red-50 !text-red-800 !border-red-500 dark:!bg-red-950 dark:!text-red-300 dark:!border-red-700",
-          warning:
-            "!bg-orange-50 !text-orange-800 !border-orange-500 dark:!bg-orange-950 dark:!text-orange-300 dark:!border-orange-700",
+          toast: "cn-toast shadow-md border",
+          success: "!bg-success-subtle !text-success-subtle-foreground !border-success",
+          error: "!bg-danger-subtle !text-danger-subtle-foreground !border-danger",
+          // Avertissement = orange de marque (primary), jamais l'ambre : l'ambre est
+          // réservé au badge de statut « Approuvé ».
+          warning: "!bg-warning-subtle !text-warning-subtle-foreground !border-warning",
+          info: "!bg-info-subtle !text-info-subtle-foreground !border-info",
         },
       }}
       {...props}

@@ -18,10 +18,16 @@ import type {
   Withdrawal,
 } from "@/lib/types";
 import { formatPersonName } from "@/lib/format-name";
+import { formatAmount } from "@/lib/format-currency";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ClientBadge } from "@/components/client-badge";
 import { NOTEBOOK_STATUS_LABELS } from "../schema";
-import { LOAN_STATUS_BADGE_VARIANT, LOAN_STATUS_LABELS, LOAN_TYPE_LABELS } from "./prets/schema";
+import {
+  LOAN_STATUS_BADGE_VARIANT,
+  LOAN_STATUS_LABELS,
+  LOAN_TYPE_LABELS,
+  computeMontantADecaisser,
+} from "./prets/schema";
 import { WITHDRAWAL_MODE_LABELS } from "./retraits/schema";
 
 export const metadata = {
@@ -81,7 +87,7 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Carnet {notebook.notebook_number}</h1>
         <p className="text-sm text-muted-foreground">
-          Année {notebook.year} · Cotisation {notebook.contribution_amount} · Statut actuel :{" "}
+          Année {notebook.year} · Cotisation {formatAmount(notebook.contribution_amount)} · Statut actuel :{" "}
           {NOTEBOOK_STATUS_LABELS[notebook.status]}
         </p>
         <p className="text-sm text-muted-foreground">Agence : {state.agency_name}</p>
@@ -91,7 +97,7 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
         <Card>
           <CardHeader>
             <CardDescription>Montant total cotisé</CardDescription>
-            <CardTitle className="text-3xl">{state.total_amount_collected}</CardTitle>
+            <CardTitle className="font-mono text-3xl tabular-nums">{formatAmount(state.total_amount_collected)}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -135,7 +141,7 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
                   <TableRow>
                     <TableHead>Date</TableHead>
                     <TableHead>Type</TableHead>
-                    <TableHead>Montant prêté</TableHead>
+                    <TableHead>Montant à décaisser</TableHead>
                     <TableHead>Statut</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -155,7 +161,7 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
                           </Link>
                         </TableCell>
                         <TableCell>{LOAN_TYPE_LABELS[loan.type_loan]}</TableCell>
-                        <TableCell>{loan.amount_loaned}</TableCell>
+                        <TableCell className="font-mono">{formatAmount(computeMontantADecaisser(loan))}</TableCell>
                         <TableCell>
                           <Badge variant={LOAN_STATUS_BADGE_VARIANT[loan.status]}>{LOAN_STATUS_LABELS[loan.status]}</Badge>
                         </TableCell>
@@ -194,7 +200,7 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
                   months.slice(0, ROW_LIMIT).map((entry) => (
                     <TableRow key={entry.id}>
                       <TableCell>{entry.month}</TableCell>
-                      <TableCell>{entry.amount}</TableCell>
+                      <TableCell className="font-mono">{formatAmount(entry.amount)}</TableCell>
                     </TableRow>
                   ))
                 )}
@@ -238,7 +244,7 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
                       {new Date(collection.created_at).toLocaleDateString("fr-FR")}
                     </TableCell>
                     <TableCell>{collection.box_number}</TableCell>
-                    <TableCell>{collection.amount}</TableCell>
+                    <TableCell className="font-mono">{formatAmount(collection.amount)}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {collection.user ? `${collection.user.first_name} ${collection.user.last_name}` : "—"}
                     </TableCell>
@@ -286,8 +292,10 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
                       <TableCell className="text-sm text-muted-foreground">
                         {new Date(withdrawal.created_at).toLocaleDateString("fr-FR")}
                       </TableCell>
-                      <TableCell>{withdrawal.amount}</TableCell>
-                      <TableCell>{withdrawal.agency_gain ?? "—"}</TableCell>
+                      <TableCell className="font-mono">{formatAmount(withdrawal.amount)}</TableCell>
+                      <TableCell className="font-mono">
+                        {withdrawal.agency_gain ? formatAmount(withdrawal.agency_gain) : "—"}
+                      </TableCell>
                       <TableCell>
                         {WITHDRAWAL_MODE_LABELS[withdrawal.withdrawal_mode as keyof typeof WITHDRAWAL_MODE_LABELS] ??
                           withdrawal.withdrawal_mode}
