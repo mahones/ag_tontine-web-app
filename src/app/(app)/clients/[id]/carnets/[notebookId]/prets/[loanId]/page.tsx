@@ -9,7 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { ApiEnvelope, Loan, Repayment } from "@/lib/types";
+import type { ApiEnvelope, Client, Loan, Notebook, Repayment } from "@/lib/types";
+import { formatPersonName } from "@/lib/format-name";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { ClientBadge } from "@/components/client-badge";
 import { LOAN_STATUS_LABELS, LOAN_TYPE_LABELS } from "../schema";
 import { RepaymentCreateForm } from "./repayment-create-form";
 import { createRepaymentAction } from "./actions";
@@ -33,7 +36,11 @@ export default async function LoanDetailPage(
     throw error;
   }
 
-  const { data: repayments } = await apiFetch<ApiEnvelope<Repayment[]>>(`/repayments/loan/${loanId}`);
+  const [{ data: client }, { data: notebook }, { data: repayments }] = await Promise.all([
+    apiFetch<ApiEnvelope<Client>>(`/clients/${id}`),
+    apiFetch<ApiEnvelope<Notebook>>(`/notebooks/${notebookId}`),
+    apiFetch<ApiEnvelope<Repayment[]>>(`/repayments/loan/${loanId}`),
+  ]);
   const totalPaid = repayments.reduce((sum, repayment) => sum + Number(repayment.amount_paid), 0);
   // Indicative only: mirrors the simple amount_loaned + file_fees - paid formula that
   // CreateCollectionAction itself uses for "quinzaine"/"trimestriel" loans. That action's
@@ -48,6 +55,16 @@ export default async function LoanDetailPage(
 
   return (
     <div className="space-y-8">
+      <Breadcrumbs
+        items={[
+          { label: "Clients", href: "/clients" },
+          { label: formatPersonName(client.first_name, client.last_name), href: `/clients/${id}` },
+          { label: `Carnet ${notebook.notebook_number}`, href: `/clients/${id}/carnets/${notebookId}` },
+          { label: "Prêts", href: `/clients/${id}/carnets/${notebookId}/prets` },
+          { label: LOAN_TYPE_LABELS[loan.type_loan] },
+        ]}
+      />
+      <ClientBadge clientId={id} firstName={client.first_name} lastName={client.last_name} />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">
           Remboursements — Prêt {LOAN_TYPE_LABELS[loan.type_loan]}

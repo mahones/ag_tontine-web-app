@@ -4,6 +4,7 @@ import { apiFetch, ApiError } from "@/lib/api";
 import type { ApiEnvelope, Microfinance } from "@/lib/types";
 import { MicrofinanceForm } from "../microfinance-form";
 import { updateMicrofinanceAction } from "../actions";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 export const metadata = {
   title: "Modifier une microfinance — Tontine",
@@ -26,6 +27,7 @@ export default async function EditMicrofinancePage(props: PageProps<"/microfinan
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: "Microfinances", href: "/microfinances" }, { label: microfinance.name }]} />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{microfinance.name}</h1>
         <p className="font-mono text-sm text-muted-foreground">{microfinance.code}</p>

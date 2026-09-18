@@ -17,6 +17,8 @@ const badgeVariants = cva(
           "bg-green-50 text-green-800 border-green-500 dark:bg-green-950 dark:text-green-300 dark:border-green-700 [a]:hover:bg-green-100 dark:[a]:hover:bg-green-900",
         warning:
           "bg-orange-50 text-orange-800 border-orange-500 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-700 [a]:hover:bg-orange-100 dark:[a]:hover:bg-orange-900",
+        tertiary:
+          "bg-tertiary/10 text-tertiary border-tertiary [a]:hover:bg-tertiary/20",
         outline:
           "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
         ghost:

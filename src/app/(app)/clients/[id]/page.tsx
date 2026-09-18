@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/table";
 import type { ApiEnvelope, Client, ClientStats, Notebook } from "@/lib/types";
 import { formatFirstName, formatLastName, formatPersonName } from "@/lib/format-name";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { ClientBadge } from "@/components/client-badge";
 import { ClientEditDialog } from "../client-edit-dialog";
 import { updateClientAction } from "../actions";
 
@@ -59,6 +61,13 @@ export default async function ClientDetailPage(props: PageProps<"/clients/[id]">
 
   return (
     <div className="space-y-8">
+      <Breadcrumbs
+        items={[
+          { label: "Clients", href: "/clients" },
+          { label: formatPersonName(client.first_name, client.last_name) },
+        ]}
+      />
+      <ClientBadge clientId={id} firstName={client.first_name} lastName={client.last_name} />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">

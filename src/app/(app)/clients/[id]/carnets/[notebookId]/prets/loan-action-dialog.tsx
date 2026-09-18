@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { LoanCreateForm } from "./loan-create-form";
 import { LoanApproveButton } from "./loan-approve-button";
+import { LoanDisburseButton } from "./loan-disburse-button";
 import {
   LOAN_STATUS_BADGE_VARIANT,
   LOAN_STATUS_LABELS,
@@ -29,9 +30,11 @@ type LoanActionDialogProps = {
   notebookId: string;
   canSubmit: boolean;
   canApprove: boolean;
+  canDisburse: boolean;
   openLoan: Loan | null;
   onSubmitLoan: (values: LoanCreateFormValues) => Promise<LoanActionResult>;
   onUpdateStatus: ((values: LoanStatusFormValues) => Promise<LoanActionResult>) | null;
+  onDisburse: (() => Promise<LoanActionResult>) | null;
 };
 
 export function LoanActionDialog({
@@ -39,9 +42,11 @@ export function LoanActionDialog({
   notebookId,
   canSubmit,
   canApprove,
+  canDisburse,
   openLoan,
   onSubmitLoan,
   onUpdateStatus,
+  onDisburse,
 }: LoanActionDialogProps) {
   const [open, setOpen] = useState(false);
 
@@ -68,6 +73,14 @@ export function LoanActionDialog({
               ) : (
                 <p className="text-sm text-muted-foreground">
                   Vous n&apos;avez pas la permission d&apos;approuver ce prêt.
+                </p>
+              ))}
+            {openLoan.status === "approved" &&
+              (canDisburse && onDisburse ? (
+                <LoanDisburseButton onSubmit={onDisburse} />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Vous n&apos;avez pas la permission de décaisser ce prêt.
                 </p>
               ))}
             <Link

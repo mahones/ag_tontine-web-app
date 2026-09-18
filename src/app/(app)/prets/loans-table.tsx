@@ -31,6 +31,7 @@ import {
   LOAN_TYPE_LABELS,
 } from "@/app/(app)/clients/[id]/carnets/[notebookId]/prets/schema";
 import { PendingLoanActions } from "@/app/(app)/dashboard/pending-loan-actions";
+import { LoanDisburseAction } from "./loan-disburse-action";
 
 export const ALL_STATUSES = "all";
 const STATUS_ITEMS = [
@@ -45,6 +46,7 @@ export function LoansTable({
   initialStatus = ALL_STATUSES,
   showAgencyColumn = false,
   canApprove = false,
+  canDisburse = false,
 }: {
   loans: Loan[];
   meta: PaginationMeta;
@@ -54,6 +56,8 @@ export function LoansTable({
   /** Shows Approuver/Rejeter next to pending loans — mirrors the dashboard's own
    * "Prêts en attente" quick actions (see PendingLoanActions). */
   canApprove?: boolean;
+  /** Shows Décaisser next to approved loans. */
+  canDisburse?: boolean;
 }) {
   const { search, setSearch, setPage } = useListQuery(initialSearch);
   const router = useRouter();
@@ -70,7 +74,7 @@ export function LoansTable({
     router.push(query ? `${pathname}?${query}` : pathname);
   }
 
-  const columnCount = showAgencyColumn ? 6 : 5;
+  const columnCount = showAgencyColumn ? 7 : 6;
 
   return (
     <div className="space-y-3">
@@ -103,10 +107,11 @@ export function LoansTable({
           <TableHeader>
             <TableRow>
               <TableHead>Date</TableHead>
+              <TableHead>N° carnet</TableHead>
               <TableHead>Client</TableHead>
               {showAgencyColumn && <TableHead>Agence</TableHead>}
               <TableHead>Type</TableHead>
-              <TableHead>Montant prêté</TableHead>
+              <TableHead>Montant à décaisser</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -132,6 +137,9 @@ export function LoansTable({
                     ) : (
                       new Date(loan.loan_date).toLocaleDateString("fr-FR")
                     )}
+                  </TableCell>
+                  <TableCell className="font-mono text-xs text-muted-foreground">
+                    {loan.notebook?.notebook_number ?? "—"}
                   </TableCell>
                   <TableCell>
                     {loan.notebook?.client
@@ -169,6 +177,7 @@ export function LoansTable({
                           <TooltipContent>Voir le carnet</TooltipContent>
                         </Tooltip>
                       )}
+                      {canDisburse && loan.status === "approved" && <LoanDisburseAction loan={loan} />}
                     </div>
                   </TableCell>
                 </TableRow>

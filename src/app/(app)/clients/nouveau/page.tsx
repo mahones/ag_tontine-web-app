@@ -3,6 +3,7 @@ import { apiFetch } from "@/lib/api";
 import type { ApiEnvelope, Prospect } from "@/lib/types";
 import { ClientCreateForm } from "../client-create-form";
 import { createClientAction } from "../actions";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 export const metadata = {
   title: "Nouveau client — Tontine",
@@ -16,6 +17,7 @@ export default async function NewClientPage() {
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={[{ label: "Clients", href: "/clients" }, { label: "Nouveau client" }]} />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Nouveau client</h1>
         <p className="text-sm text-muted-foreground">

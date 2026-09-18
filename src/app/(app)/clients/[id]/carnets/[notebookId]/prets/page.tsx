@@ -12,17 +12,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { ApiEnvelope, Loan, Notebook } from "@/lib/types";
+import type { ApiEnvelope, Client, Loan, Notebook } from "@/lib/types";
+import { formatPersonName } from "@/lib/format-name";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { ClientBadge } from "@/components/client-badge";
 import { LOAN_STATUS_BADGE_VARIANT, LOAN_STATUS_LABELS, LOAN_TYPE_LABELS } from "./schema";
 import { LoanCreateForm } from "./loan-create-form";
 import { LoanApproveButton } from "./loan-approve-button";
-import { createLoanAction, updateLoanStatusAction } from "./actions";
+import { LoanDisburseButton } from "./loan-disburse-button";
+import { createLoanAction, updateLoanStatusAction, disburseLoanAction } from "./actions";
 
 export const metadata = {
   title: "Prêts — Tontine",
 };
 
-const OPEN_STATUSES: Loan["status"][] = ["pending", "active"];
+// "approved" counts as open too: it still blocks a new submission (CreateLoanAction)
+// until the Caissier disburses it — mirrors cotisations/page.tsx's OPEN_LOAN_STATUSES.
+const OPEN_STATUSES: Loan["status"][] = ["pending", "approved", "active"];
 
 export default async function LoansPage(props: PageProps<"/clients/[id]/carnets/[notebookId]/prets">) {
   const user = await requirePermission("see_loans");
@@ -37,15 +43,29 @@ export default async function LoansPage(props: PageProps<"/clients/[id]/carnets/
     throw error;
   }
 
-  const { data: loans } = await apiFetch<ApiEnvelope<Loan[]>>(`/loans/notebook/${notebookId}`);
+  const [{ data: client }, { data: loans }] = await Promise.all([
+    apiFetch<ApiEnvelope<Client>>(`/clients/${id}`),
+    apiFetch<ApiEnvelope<Loan[]>>(`/loans/notebook/${notebookId}`),
+  ]);
   const openLoan = loans.find((loan) => OPEN_STATUSES.includes(loan.status)) ?? null;
   const canSubmit = hasPermission(user, "submit_loan");
   const canApprove = hasPermission(user, "approve_loan");
+  const canDisburse = hasPermission(user, "disburse_loan");
   const boundCreate = createLoanAction.bind(null, notebookId, id);
   const boundUpdateStatus = openLoan ? updateLoanStatusAction.bind(null, openLoan.id, id, notebookId) : null;
+  const boundDisburse = openLoan ? disburseLoanAction.bind(null, openLoan.id, id, notebookId) : null;
 
   return (
     <div className="space-y-8">
+      <Breadcrumbs
+        items={[
+          { label: "Clients", href: "/clients" },
+          { label: formatPersonName(client.first_name, client.last_name), href: `/clients/${id}` },
+          { label: `Carnet ${notebook.notebook_number}`, href: `/clients/${id}/carnets/${notebookId}` },
+          { label: "Prêts" },
+        ]}
+      />
+      <ClientBadge clientId={id} firstName={client.first_name} lastName={client.last_name} />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Prêts — Carnet {notebook.notebook_number}</h1>
       </div>
@@ -53,8 +73,8 @@ export default async function LoansPage(props: PageProps<"/clients/[id]/carnets/
       {canSubmit ? (
         openLoan ? (
           <p className="text-sm text-muted-foreground">
-            Ce carnet a déjà un prêt en attente ou actif — aucun nouveau prêt ne peut être soumis
-            tant qu&apos;il n&apos;est pas soldé.
+            Ce carnet a déjà un prêt en attente, approuvé ou actif — aucun nouveau prêt ne peut être
+            soumis tant qu&apos;il n&apos;est pas soldé.
           </p>
         ) : (
           <LoanCreateForm onSubmit={boundCreate} />
@@ -70,6 +90,9 @@ export default async function LoansPage(props: PageProps<"/clients/[id]/carnets/
           <h2 className="text-lg font-medium tracking-tight">Historique ({loans.length})</h2>
           {canApprove && openLoan?.status === "pending" && boundUpdateStatus && (
             <LoanApproveButton onSubmit={boundUpdateStatus} />
+          )}
+          {canDisburse && openLoan?.status === "approved" && boundDisburse && (
+            <LoanDisburseButton onSubmit={boundDisburse} />
           )}
         </div>
         <div className="overflow-hidden rounded-lg border">

@@ -9,6 +9,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/ca
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type {
   ApiEnvelope,
+  Client,
   Collection,
   Loan,
   MonthlyContribution,
@@ -16,6 +17,9 @@ import type {
   NotebookState,
   Withdrawal,
 } from "@/lib/types";
+import { formatPersonName } from "@/lib/format-name";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { ClientBadge } from "@/components/client-badge";
 import { NOTEBOOK_STATUS_LABELS } from "../schema";
 import { LOAN_STATUS_BADGE_VARIANT, LOAN_STATUS_LABELS, LOAN_TYPE_LABELS } from "./prets/schema";
 import { WITHDRAWAL_MODE_LABELS } from "./retraits/schema";
@@ -44,16 +48,18 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
   const canSeeLoans = hasPermission(user, "see_loans");
   const canSeeWithdrawals = hasPermission(user, "view_withdrawals");
 
-  const [{ data: state }, { data: months }, { data: loans }, { data: withdrawals }] = await Promise.all([
-    apiFetch<ApiEnvelope<NotebookState>>(`/notebooks/${notebookId}/state`),
-    apiFetch<ApiEnvelope<MonthlyContribution[]>>(`/monthly-contributions/notebook/${notebookId}`),
-    canSeeLoans
-      ? apiFetch<ApiEnvelope<Loan[]>>(`/loans/notebook/${notebookId}`)
-      : Promise.resolve({ data: [] as Loan[] }),
-    canSeeWithdrawals
-      ? apiFetch<ApiEnvelope<Withdrawal[]>>(`/withdrawals/notebook/${notebookId}`)
-      : Promise.resolve({ data: [] as Withdrawal[] }),
-  ]);
+  const [{ data: client }, { data: state }, { data: months }, { data: loans }, { data: withdrawals }] =
+    await Promise.all([
+      apiFetch<ApiEnvelope<Client>>(`/clients/${id}`),
+      apiFetch<ApiEnvelope<NotebookState>>(`/notebooks/${notebookId}/state`),
+      apiFetch<ApiEnvelope<MonthlyContribution[]>>(`/monthly-contributions/notebook/${notebookId}`),
+      canSeeLoans
+        ? apiFetch<ApiEnvelope<Loan[]>>(`/loans/notebook/${notebookId}`)
+        : Promise.resolve({ data: [] as Loan[] }),
+      canSeeWithdrawals
+        ? apiFetch<ApiEnvelope<Withdrawal[]>>(`/withdrawals/notebook/${notebookId}`)
+        : Promise.resolve({ data: [] as Withdrawal[] }),
+    ]);
 
   // Cotisations overview shows the latest (current) month only — full month-by-month
   // history stays on the dedicated Cotisations page (see "Voir tout" link below).
@@ -64,6 +70,14 @@ export default async function NotebookDetailPage(props: PageProps<"/clients/[id]
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: "Clients", href: "/clients" },
+          { label: formatPersonName(client.first_name, client.last_name), href: `/clients/${id}` },
+          { label: `Carnet ${notebook.notebook_number}` },
+        ]}
+      />
+      <ClientBadge clientId={id} firstName={client.first_name} lastName={client.last_name} />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Carnet {notebook.notebook_number}</h1>
         <p className="text-sm text-muted-foreground">

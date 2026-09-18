@@ -10,7 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { ApiEnvelope, Collection, Loan, Notebook, Withdrawal } from "@/lib/types";
+import type { ApiEnvelope, Client, Collection, Loan, Notebook, Withdrawal } from "@/lib/types";
+import { formatPersonName } from "@/lib/format-name";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { ClientBadge } from "@/components/client-badge";
 import { WITHDRAWAL_MODE_LABELS } from "./schema";
 import { WithdrawalCreateForm } from "./withdrawal-create-form";
 import { WithdrawalGainForm } from "./withdrawal-gain-form";
@@ -33,7 +36,8 @@ export default async function WithdrawalsPage(props: PageProps<"/clients/[id]/ca
     throw error;
   }
 
-  const [{ data: withdrawals }, { data: loans }, { data: collections }] = await Promise.all([
+  const [{ data: client }, { data: withdrawals }, { data: loans }, { data: collections }] = await Promise.all([
+    apiFetch<ApiEnvelope<Client>>(`/clients/${id}`),
     apiFetch<ApiEnvelope<Withdrawal[]>>(`/withdrawals/notebook/${notebookId}`),
     apiFetch<ApiEnvelope<Loan[]>>(`/loans/notebook/${notebookId}`),
     apiFetch<ApiEnvelope<Collection[]>>(`/collections/notebook/${notebookId}`),
@@ -56,6 +60,15 @@ export default async function WithdrawalsPage(props: PageProps<"/clients/[id]/ca
 
   return (
     <div className="space-y-8">
+      <Breadcrumbs
+        items={[
+          { label: "Clients", href: "/clients" },
+          { label: formatPersonName(client.first_name, client.last_name), href: `/clients/${id}` },
+          { label: `Carnet ${notebook.notebook_number}`, href: `/clients/${id}/carnets/${notebookId}` },
+          { label: "Retraits" },
+        ]}
+      />
+      <ClientBadge clientId={id} firstName={client.first_name} lastName={client.last_name} />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Retraits — Carnet {notebook.notebook_number}</h1>
         <p className="text-sm text-muted-foreground">Montant disponible (indicatif) : {availableAmount.toFixed(2)}</p>

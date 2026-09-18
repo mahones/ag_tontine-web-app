@@ -17,14 +17,14 @@ export const LOAN_TYPE_LABELS: Record<LoanCreateFormValues["type_loan"], string>
   trimestriel: "Trimestriel",
 };
 
-// UpdateLoanAction persists whatever string is sent as "status" (UpdateLoanRequest only
-// validates it's a string) — this form restricts the choices to the transitions an
-// approver would actually make by hand. "pending" (initial state), "gains_remaining" and
-// "closed" are deliberately excluded: those are meant to be set automatically by
-// CreateCollectionAction's repayment logic and the withdrawal-on-loan-gain flow, not
-// picked manually here.
+// UpdateLoanRequest/UpdateLoanAction now only accept approved/rejected, and only from a
+// pending loan — "active" can no longer be set this way at all (see DisburseLoanAction /
+// the "Décaisser" action instead, only reachable once a loan is approved). "pending"
+// (initial state), "gains_remaining" and "closed" are deliberately excluded here too:
+// those are meant to be set automatically by CreateCollectionAction's repayment logic
+// and the withdrawal-on-loan-gain flow, not picked manually.
 export const loanStatusFormSchema = z.object({
-  status: z.enum(["approved", "active", "rejected"], {
+  status: z.enum(["approved", "rejected"], {
     error: "Le statut est requis.",
   }),
 });
@@ -45,10 +45,10 @@ export const LOAN_STATUS_LABELS: Record<
 
 export const LOAN_STATUS_BADGE_VARIANT: Record<
   keyof typeof LOAN_STATUS_LABELS,
-  "warning" | "success" | "destructive" | "secondary"
+  "warning" | "success" | "destructive" | "secondary" | "tertiary"
 > = {
   pending: "warning",
-  approved: "secondary",
+  approved: "tertiary",
   active: "success",
   gains_remaining: "secondary",
   closed: "destructive",

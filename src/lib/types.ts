@@ -149,6 +149,8 @@ export type Loan = {
   file_fees: string;
   agency_gain: string;
   status: "pending" | "approved" | "active" | "gains_remaining" | "closed" | "rejected";
+  disbursed_at: string | null;
+  disbursed_by: string | null;
   loan_date: string;
   created_at: string;
   updated_at: string;

@@ -26,6 +26,7 @@ import { DashboardStatsGrid } from "@/app/(app)/dashboard/dashboard-stats-grid";
 import { PendingLoansTable } from "@/app/(app)/dashboard/pending-loans-table";
 import { AgencyPersonnelTable } from "./agency-personnel-table";
 import { ClientsTable } from "@/app/(app)/clients/clients-table";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 export const metadata = {
   title: "Détail de l'agence — Tontine",
@@ -92,6 +93,13 @@ export default async function AgencyDetailPage(
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: "Microfinances", href: "/microfinances" },
+          { label: agency.microfinance?.name ?? "Microfinance", href: `/microfinances/${id}/agences` },
+          { label: agency.name },
+        ]}
+      />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">{agency.name}</h1>
         <p className="font-mono text-sm text-muted-foreground">

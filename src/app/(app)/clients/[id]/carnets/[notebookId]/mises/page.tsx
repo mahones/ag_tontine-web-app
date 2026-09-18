@@ -10,7 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { ApiEnvelope, MonthlyContribution, Notebook } from "@/lib/types";
+import type { ApiEnvelope, Client, MonthlyContribution, Notebook } from "@/lib/types";
+import { formatPersonName } from "@/lib/format-name";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { ClientBadge } from "@/components/client-badge";
 import { ContributionAmountForm } from "./contribution-amount-form";
 import { changeContributionAmountAction } from "./actions";
 
@@ -33,14 +36,24 @@ export default async function ContributionAmountsPage(
     throw error;
   }
 
-  const { data: history } = await apiFetch<ApiEnvelope<MonthlyContribution[]>>(
-    `/monthly-contributions/notebook/${notebookId}`,
-  );
+  const [{ data: client }, { data: history }] = await Promise.all([
+    apiFetch<ApiEnvelope<Client>>(`/clients/${id}`),
+    apiFetch<ApiEnvelope<MonthlyContribution[]>>(`/monthly-contributions/notebook/${notebookId}`),
+  ]);
   const canChange = hasPermission(user, "create_client");
   const boundChange = changeContributionAmountAction.bind(null, notebookId, id);
 
   return (
     <div className="space-y-8">
+      <Breadcrumbs
+        items={[
+          { label: "Clients", href: "/clients" },
+          { label: formatPersonName(client.first_name, client.last_name), href: `/clients/${id}` },
+          { label: `Carnet ${notebook.notebook_number}`, href: `/clients/${id}/carnets/${notebookId}` },
+          { label: "Mises" },
+        ]}
+      />
+      <ClientBadge clientId={id} firstName={client.first_name} lastName={client.last_name} />
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Mises — Carnet {notebook.notebook_number}</h1>
         <p className="text-sm text-muted-foreground">Mise actuelle : {notebook.contribution_amount}</p>

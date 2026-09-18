@@ -73,3 +73,26 @@ export async function updateLoanStatusAction(
   revalidatePath(`/clients/${clientId}/carnets/${notebookId}/prets/${loanId}`);
   return { success: true };
 }
+
+export async function disburseLoanAction(
+  loanId: string,
+  clientId: string,
+  notebookId: string,
+): Promise<LoanActionResult> {
+  await requirePermission("disburse_loan");
+
+  try {
+    await apiFetch<ApiEnvelope<Loan>>(`/loans/${loanId}/disburse`, {
+      method: "POST",
+    });
+  } catch (error) {
+    if (error instanceof ApiError) {
+      return { success: false, message: error.message, errors: error.errors };
+    }
+    return { success: false, message: "Une erreur est survenue." };
+  }
+
+  revalidatePath(`/clients/${clientId}/carnets/${notebookId}/prets`);
+  revalidatePath(`/clients/${clientId}/carnets/${notebookId}/prets/${loanId}`);
+  return { success: true };
+}

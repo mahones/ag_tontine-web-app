@@ -21,6 +21,7 @@ export type PermissionCode =
   | "register_contribution_agence"
   | "submit_loan"
   | "approve_loan"
+  | "disburse_loan"
   | "see_loans"
   | "validate_withdrawal"
   | "view_withdrawals";
@@ -66,7 +67,14 @@ const ROLE_PERMISSIONS: Record<string, PermissionCode[]> = {
     "view_withdrawals",
     "view_agency_users",
   ],
-  Caissier: ["view_clients", "register_contribution_agence", "see_loans", "validate_withdrawal", "view_withdrawals"],
+  Caissier: [
+    "view_clients",
+    "register_contribution_agence",
+    "see_loans",
+    "disburse_loan",
+    "validate_withdrawal",
+    "view_withdrawals",
+  ],
   // Agent (level 4) is mobile-first, but its /mobile/* routes are previewed on the web
   // console for now (see /agent/**) ahead of the real mobile app being built.
   Agent: ["create_prospect", "register_contribution_terrain", "view_clients"],

@@ -35,6 +35,7 @@ export default async function LoansListPage(props: PageProps<"/prets">) {
   const status = explicitStatus ?? defaultStatus;
   const scopedToMicrofinance = isMicrofinanceOwner(user);
   const canApprove = hasPermission(user, "approve_loan");
+  const canDisburse = hasPermission(user, "disburse_loan");
   const endpoint = scopedToMicrofinance ? "/microfinance/loans" : "/agency/loans";
   const query = buildListQuery(searchParams) + (status === ALL_STATUSES ? "" : `&status=${encodeURIComponent(status)}`);
   const { data: loans, meta } = await apiFetch<PaginatedEnvelope<Loan>>(`${endpoint}${query}`);
@@ -57,6 +58,7 @@ export default async function LoansListPage(props: PageProps<"/prets">) {
         initialStatus={status}
         showAgencyColumn={scopedToMicrofinance}
         canApprove={canApprove}
+        canDisburse={canDisburse}
       />
     </div>
   );

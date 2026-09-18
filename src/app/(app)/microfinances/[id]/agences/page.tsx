@@ -8,6 +8,7 @@ import { LICENCE_STATUS_LABELS } from "@/app/(app)/licences/schema";
 import { DashboardStatsGrid } from "@/app/(app)/dashboard/dashboard-stats-grid";
 import { PendingLoansTable } from "@/app/(app)/dashboard/pending-loans-table";
 import { MicrofinanceAgencesTable } from "./microfinance-agences-table";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 export const metadata = {
   title: "Agences de la microfinance — Tontine",
@@ -43,6 +44,13 @@ export default async function MicrofinanceAgencesPage(props: PageProps<"/microfi
 
   return (
     <div className="space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: "Microfinances", href: "/microfinances" },
+          { label: microfinance.name, href: `/microfinances/${id}` },
+          { label: "Agences" },
+        ]}
+      />
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{microfinance.name}</h1>

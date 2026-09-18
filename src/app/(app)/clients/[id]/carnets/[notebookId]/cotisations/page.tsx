@@ -14,13 +14,19 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { ApiEnvelope, Collection, Loan, MonthlyContribution, Notebook } from "@/lib/types";
+import type { ApiEnvelope, Client, Collection, Loan, MonthlyContribution, Notebook } from "@/lib/types";
+import { formatPersonName } from "@/lib/format-name";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { ClientBadge } from "@/components/client-badge";
 import { CollectionCreateForm } from "./collection-create-form";
 import { createCollectionAction } from "./actions";
 import { LoanActionDialog } from "../prets/loan-action-dialog";
-import { createLoanAction, updateLoanStatusAction } from "../prets/actions";
+import { createLoanAction, updateLoanStatusAction, disburseLoanAction } from "../prets/actions";
 
-const OPEN_LOAN_STATUSES: Loan["status"][] = ["pending", "active"];
+// "approved" counts as open too: it still blocks a new submission (CreateLoanAction)
+// until the Caissier disburses it — otherwise this page would offer "Octroyer un
+// prêt" again instead of showing the approved loan waiting to be disbursed.
+const OPEN_LOAN_STATUSES: Loan["status"][] = ["pending", "approved", "active"];
 
 export const metadata = {
   title: "Cotisations — Tontine",
@@ -42,9 +48,10 @@ export default async function CollectionsPage(
     throw error;
   }
 
-  const { data: months } = await apiFetch<ApiEnvelope<MonthlyContribution[]>>(
-    `/monthly-contributions/notebook/${notebookId}`,
-  );
+  const [{ data: client }, { data: months }] = await Promise.all([
+    apiFetch<ApiEnvelope<Client>>(`/clients/${id}`),
+    apiFetch<ApiEnvelope<MonthlyContribution[]>>(`/monthly-contributions/notebook/${notebookId}`),
+  ]);
   // A carnet holds up to 12 months x 31 boxes = 372 collections — this page paginates the
   // history one month at a time instead of listing everything at once. New collections
   // always land on the latest (current) month, never an older one already full.
@@ -60,14 +67,27 @@ export default async function CollectionsPage(
   const canRegister = hasPermission(user, "register_contribution_agence");
   const canSubmitLoan = hasPermission(user, "submit_loan");
   const canApproveLoan = hasPermission(user, "approve_loan");
+  const canDisburseLoan = hasPermission(user, "disburse_loan");
   const boundCreate = createCollectionAction.bind(null, notebookId, id);
   const boundCreateLoan = createLoanAction.bind(null, notebookId, id);
   const boundUpdateLoanStatus = openLoan
     ? updateLoanStatusAction.bind(null, openLoan.id, id, notebookId)
     : null;
+  const boundDisburseLoan = openLoan
+    ? disburseLoanAction.bind(null, openLoan.id, id, notebookId)
+    : null;
 
   return (
     <div className="space-y-8">
+      <Breadcrumbs
+        items={[
+          { label: "Clients", href: "/clients" },
+          { label: formatPersonName(client.first_name, client.last_name), href: `/clients/${id}` },
+          { label: `Carnet ${notebook.notebook_number}`, href: `/clients/${id}/carnets/${notebookId}` },
+          { label: "Cotisations" },
+        ]}
+      />
+      <ClientBadge clientId={id} firstName={client.first_name} lastName={client.last_name} />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Cotisations — Carnet {notebook.notebook_number}</h1>
@@ -81,9 +101,11 @@ export default async function CollectionsPage(
             notebookId={notebookId}
             canSubmit={canSubmitLoan}
             canApprove={canApproveLoan}
+            canDisburse={canDisburseLoan}
             openLoan={openLoan}
             onSubmitLoan={boundCreateLoan}
             onUpdateStatus={boundUpdateLoanStatus}
+            onDisburse={boundDisburseLoan}
           />
           <Link href={`/clients/${id}/carnets/${notebookId}/retraits`} className={buttonVariants({ variant: "outline" })}>
             <WalletIcon />
