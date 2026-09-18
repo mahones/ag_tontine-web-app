@@ -55,6 +55,20 @@ export async function requireAgent(): Promise<AuthUser> {
 }
 
 /**
+ * Redirects to /dashboard unless the user is a Super Admin or a Développeur. Guards
+ * pages that are otherwise Super-Admin-only (own microfinance) but now also serve
+ * Développeur with a platform-wide scope (see e.g. /agences, /prospects) — the page
+ * itself picks the right endpoint based on which of the two the caller is.
+ */
+export async function requireSuperAdminOrDeveloper(): Promise<AuthUser> {
+  const user = await requireUser();
+  if (user.role?.level !== ROLE_LEVEL.SUPER_ADMIN && user.role?.level !== ROLE_LEVEL.DEVELOPPEUR) {
+    redirect("/dashboard");
+  }
+  return user;
+}
+
+/**
  * Redirects to /dashboard when the user's role lacks the given permission code (per
  * lib/permissions.ts, mirroring the backend's seeded role/permission matrix). Use for
  * agency-operations pages shared across several roles with different permissions

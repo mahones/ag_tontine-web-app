@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BanknoteIcon,
   Building2Icon,
   CoinsIcon,
   HandCoinsIcon,
@@ -32,6 +33,7 @@ const ICONS: Record<NavIcon, LucideIcon> = {
   personnels: UsersIcon,
   clients: UserRoundIcon,
   prets: HandCoinsIcon,
+  retraits: BanknoteIcon,
   synchronisation: RefreshCwIcon,
 };
 

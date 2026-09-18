@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { PlusIcon } from "lucide-react";
 import { requirePermission } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
@@ -15,21 +14,24 @@ export const metadata = {
 };
 
 /**
- * Développeur has no agency of their own (agency_id is null), so this
- * agency-scoped page doesn't apply to them — they reach a microfinance's
- * clients by drilling into its agencies instead (see /microfinances).
+ * Développeur has no agency of their own (agency_id is null), so gets the
+ * platform-wide list via /clients (onlydev) instead of the agency-scoped
+ * /clients/agency/{agency} every other view_clients holder uses. "Nouveau
+ * client" is hidden for them: /clients/nouveau needs an agency context
+ * (fetches /agency/prospects) that Développeur doesn't have.
  */
 export default async function ClientsPage(props: PageProps<"/clients">) {
   const user = await requirePermission("view_clients");
-  if (isDeveloper(user)) redirect("/microfinances");
+  const dev = isDeveloper(user);
 
   const searchParams = await props.searchParams;
 
   // /agency/clients is gated by create_notebook, which Caissier lacks; /clients/agency/{agency}
   // is the same clientsByAgency() action (it ignores the {agency} param, using the caller's
   // own agency_id either way) but correctly gated by view_clients, matching this page's guard.
+  const endpoint = dev ? "/clients" : `/clients/agency/${user.agency_id}`;
   const { data: clients, meta } = await apiFetch<PaginatedEnvelope<Client>>(
-    `/clients/agency/${user.agency_id}${buildListQuery(searchParams)}`,
+    `${endpoint}${buildListQuery(searchParams)}`,
   );
 
   return (
@@ -37,9 +39,11 @@ export default async function ClientsPage(props: PageProps<"/clients">) {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
-          <p className="text-sm text-muted-foreground">Clients de votre agence.</p>
+          <p className="text-sm text-muted-foreground">
+            {dev ? "Clients de toute la plateforme." : "Clients de votre agence."}
+          </p>
         </div>
-        {hasPermission(user, "create_client") && (
+        {!dev && hasPermission(user, "create_client") && (
           <Link href="/clients/nouveau" className={buttonVariants()}>
             <PlusIcon />
             Nouveau client

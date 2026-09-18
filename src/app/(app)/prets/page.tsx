@@ -13,14 +13,13 @@ export const metadata = {
 
 /**
  * All loans of the caller's own agency (Chef Agence/Gestionnaire/Caissier — see_loans
- * holders below Super Admin) or every agency of their microfinance (Super Admin).
- * Développeur has no flat, cross-microfinance list of their own — same reasoning as
- * Personnel/Clients (see /personnels, /clients): they reach a carnet's loans by
- * drilling into a microfinance's agencies instead.
+ * holders below Super Admin), every agency of their microfinance (Super Admin), or
+ * platform-wide (Développeur) — same three-tier scoping as /retraits. hasPermission()
+ * always returns true for Développeur (level 0 bypasses every check), so the
+ * see_loans check below lets them through too.
  */
 export default async function LoansListPage(props: PageProps<"/prets">) {
   const user = await requireUser();
-  if (isDeveloper(user)) redirect("/microfinances");
   if (!hasPermission(user, "see_loans")) redirect("/dashboard");
 
   const searchParams = await props.searchParams;
@@ -33,10 +32,11 @@ export default async function LoansListPage(props: PageProps<"/prets">) {
   // ?status=, including "all" — see loans-table.tsx).
   const defaultStatus = isCaissier(user) ? "approved" : "pending";
   const status = explicitStatus ?? defaultStatus;
+  const dev = isDeveloper(user);
   const scopedToMicrofinance = isMicrofinanceOwner(user);
   const canApprove = hasPermission(user, "approve_loan");
   const canDisburse = hasPermission(user, "disburse_loan");
-  const endpoint = scopedToMicrofinance ? "/microfinance/loans" : "/agency/loans";
+  const endpoint = dev ? "/loans" : scopedToMicrofinance ? "/microfinance/loans" : "/agency/loans";
   const query = buildListQuery(searchParams) + (status === ALL_STATUSES ? "" : `&status=${encodeURIComponent(status)}`);
   const { data: loans, meta } = await apiFetch<PaginatedEnvelope<Loan>>(`${endpoint}${query}`);
 
@@ -45,9 +45,11 @@ export default async function LoansListPage(props: PageProps<"/prets">) {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Prêts</h1>
         <p className="text-sm text-muted-foreground">
-          {scopedToMicrofinance
-            ? "Prêts des agences de votre microfinance."
-            : "Prêts de votre agence."}
+          {dev
+            ? "Prêts de toute la plateforme."
+            : scopedToMicrofinance
+              ? "Prêts des agences de votre microfinance."
+              : "Prêts de votre agence."}
         </p>
       </div>
 
@@ -56,7 +58,7 @@ export default async function LoansListPage(props: PageProps<"/prets">) {
         meta={meta}
         initialSearch={currentSearchValue(searchParams)}
         initialStatus={status}
-        showAgencyColumn={scopedToMicrofinance}
+        showAgencyColumn={dev || scopedToMicrofinance}
         canApprove={canApprove}
         canDisburse={canDisburse}
       />

@@ -174,6 +174,13 @@ export type Withdrawal = {
   validator?: ManagedUser;
   created_at: string;
   updated_at: string;
+  // Only present when the backend eager-loads it (e.g. GET /agency/withdrawals).
+  notebook?: {
+    id: string;
+    notebook_number: string;
+    client: { id: string; first_name: string; last_name: string } | null;
+    agency: { id: string; name: string } | null;
+  };
 };
 
 export type Repayment = {

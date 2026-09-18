@@ -15,26 +15,25 @@ export const metadata = {
 };
 
 /**
- * Reserved for Super Admin (own microfinance, via /microfinance/users), Chef Agence
- * (own agency, via /agency/users) and Gestionnaire (own agency, read-only, via
- * /agency/users too — view_agency_users). Super Admin/Chef Agence can edit
- * (name/phone/email/is_agent only) staff who outrank them numerically lower — the
- * table filters that per row, the backend enforces it regardless (and never returns
- * peers/superiors in the first place). Gestionnaire never gets create/edit here.
- *
- * Développeur has no flat, cross-microfinance users list of their own — they reach
- * staff by drilling into a microfinance's agencies instead (see /microfinances),
- * where "Nouvel utilisateur"/edit links still land on the pages below.
+ * Serves Développeur (whole platform, via /users), Super Admin (own microfinance, via
+ * /microfinance/users), Chef Agence (own agency, via /agency/users) and Gestionnaire
+ * (own agency, read-only, via /agency/users too — view_agency_users). Développeur/Super
+ * Admin/Chef Agence can edit (name/phone/email/is_agent only) staff who outrank them
+ * numerically lower — the table filters that per row, the backend enforces it
+ * regardless (and never returns peers/superiors in the first place). Gestionnaire never
+ * gets create/edit here. "Nouvel utilisateur" already supports Développeur fully (role +
+ * agency pickers — see /personnels/nouveau).
  */
 export default async function PersonnelsPage(props: PageProps<"/personnels">) {
   const user = await requireUser();
-  if (isDeveloper(user)) redirect("/microfinances");
   const canManageUsers = hasPermission(user, "manage_users");
   const canViewUsers = hasPermission(user, "view_agency_users");
   if (!canManageUsers && !canViewUsers) redirect("/dashboard");
 
   const searchParams = await props.searchParams;
-  const endpoint = isMicrofinanceOwner(user) ? "/microfinance/users" : "/agency/users";
+  const dev = isDeveloper(user);
+  const scopedToMicrofinance = isMicrofinanceOwner(user);
+  const endpoint = dev ? "/users" : scopedToMicrofinance ? "/microfinance/users" : "/agency/users";
   const { data: users, meta } = await apiFetch<PaginatedEnvelope<ManagedUser>>(
     `${endpoint}${buildListQuery(searchParams)}`,
   );
@@ -45,9 +44,11 @@ export default async function PersonnelsPage(props: PageProps<"/personnels">) {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Personnel</h1>
           <p className="text-sm text-muted-foreground">
-            {isMicrofinanceOwner(user)
-              ? "Comptes des agences de votre microfinance."
-              : "Comptes de votre agence."}
+            {dev
+              ? "Comptes de toute la plateforme."
+              : scopedToMicrofinance
+                ? "Comptes des agences de votre microfinance."
+                : "Comptes de votre agence."}
           </p>
         </div>
         {canManageUsers && (
